@@ -1,10 +1,15 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component, Fragment, createRef } from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
 
+import axios from 'axios'
 
 const styles = theme => ({
   root: {
@@ -13,6 +18,13 @@ const styles = theme => ({
       width: 500,
     },
   },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
 });
 
 class CreateCase extends Component {
@@ -20,7 +32,9 @@ class CreateCase extends Component {
     super(props);
     this.state = {
       title: '',
-      description: ''
+      description: '',
+      target: '',
+      target_file: createRef()
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -34,7 +48,19 @@ class CreateCase extends Component {
   }
 
   handleSubmit = (event) =>{
-    alert('A name was submitted: ' + this.state.title);
+    // const response = axios.post(
+    //     'http://127.0.0.1:8000/v1/case/cases/', {
+    //       'title': this.state.title,
+    //       'description': this.state.description,
+    //       'target': this.state.target
+    //     },
+    //     {
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       }
+    //     })
+    console.log(this.state)
+    // console.log(response)
     event.preventDefault();
   }
 
@@ -48,29 +74,61 @@ class CreateCase extends Component {
                 className={classes.root}
                 autoComplete="off"
                 onSubmit={this.handleSubmit}>
-                <TextField
-                  id="standard-basic"
-                  fullWidth
-                  label="Title"
-                  name="title"
-                  onChange={this.handleChange}
-                  defaultValue={this.state.title}/>
+                  <TextField
+                    id="standard-basic"
+                    fullWidth
+                    label="Title"
+                    name="title"
+                    onChange={this.handleChange}
+                    defaultValue={this.state.title}/>
+                  <br/>
+                  <TextField
+                    id="standard-basic"
+                    fullWidth
+                    multiline
+                    rowsMax="4"
+                    name="description"
+                    onChange={this.handleChange}
+                    defaultValue={this.state.description}
+                    label="Description"/>
+                  <br/>
+                  <FormControl className={classes.formControl}>
+                    <InputLabel htmlFor="target">Target Input</InputLabel>
+                    <Select
+                        id="case-type"
+                        name="target"
+                        value={this.state.target}
+                        onChange={this.handleChange}>
+                        <MenuItem value="ANDROID">Android</MenuItem>
+                        <MenuItem value="IOS">IOS</MenuItem>
+                      </Select>
+                  </FormControl>
+                  <br/>
+                  <input
+                    className={classes.input}
+                    id="icon-button-photo"
+                    ref={this.state.target_file}
+                    type="file"
+                />
                 <br/>
-                <TextField
-                  id="standard-basic"
-                  fullWidth
-                  multiline
-                  rowsMax="4"
-                  name="description"
-                  onChange={this.handleChange}
-                  defaultValue={this.state.description}
-                  label="Description"/>
-                <br/>
-                <Button
-                  variant="contained"
-                  type="submit">
-                  Submit
-                </Button>
+                  <Button
+                    variant="contained"
+                    type="submit">
+                    Submit
+                  </Button>
+            </form>
+          </Grid>
+
+          <Grid container>
+              <form
+                className={classes.root}
+                autoComplete="off"
+                onSubmit={this.handleSubmit}>
+                  <Button
+                    variant="contained"
+                    type="submit">
+                    Submit
+                  </Button>
             </form>
           </Grid>
         </Fragment>
