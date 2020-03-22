@@ -1,0 +1,16 @@
+main.Layout-content-5 div ol li{
+    display: inline-block;
+    text-align: center;
+    line-height: 4.1rem;
+    padding: 0 0.7rem;
+    cursor: pointer;
+    width: 18rem;
+}
+
+main.Layout-content-5 div ol {
+  padding-left: 0.5rem
+}
+
+.multi-container {
+  width: 44%;
+}

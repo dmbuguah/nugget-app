@@ -1,6 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+// import './css/custom.css';
+// import './css/normalize.css';
+import './css/prog-tracker.css';
+import './css/skeleton.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

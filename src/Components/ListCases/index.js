@@ -32,6 +32,11 @@ const styles = theme => ({
 
 
 class ListCases extends Component {
+  constructor(props) {
+    super(props);
+    localStorage.clear()
+  }
+
   render() {
       const { classes } = this.props
 

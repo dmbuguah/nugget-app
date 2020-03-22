@@ -9,6 +9,7 @@
     "json-server": "^0.16.1",
     "react": "16.13.0",
     "react-dom": "16.13.0",
+    "react-multistep": "^4.0.1",
     "react-scripts": "^3.4.0",
     "recompose": "^0.30.0"
   },
