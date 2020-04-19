@@ -2,8 +2,6 @@ import React, {Component } from 'react'
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
-import Button from '@material-ui/core/Button';
-import StepTwo from './StepTwo'
 
 const styles = theme => ({
   root: {
@@ -50,32 +48,32 @@ class CaseInfor extends Component {
 
     return (
         <div>
-        <form
-          className={classes.root}
-          autoComplete="off">
-            <FormControl className={classes.formControl}>
-            <TextField
-              id="standard-basic"
-              fullWidth
-              label="Title"
-              name="title"
-              onChange={this.handleChange}
-              defaultValue={this.state.title}/>
-            </FormControl>
-            <br/>
-            <FormControl className={classes.formControl}>
-            <TextField
-              id="standard-basic"
-              fullWidth
-              multiline
-              rowsMax="4"
-              name="description"
-              onChange={this.handleChange}
-              defaultValue={this.state.description}
-              label="Description"/>
-            </FormControl>
-           <br/>
-      </form>
+          <form
+            className={classes.root}
+            autoComplete="off">
+              <FormControl className={classes.formControl}>
+              <TextField
+                id="standard-basic"
+                fullWidth
+                label="Title"
+                name="title"
+                onChange={this.handleChange}
+                defaultValue={this.state.title}/>
+              </FormControl>
+              <br/>
+              <FormControl className={classes.formControl}>
+              <TextField
+                id="standard-basic"
+                fullWidth
+                multiline
+                rowsMax="4"
+                name="description"
+                onChange={this.handleChange}
+                defaultValue={this.state.description}
+                label="Description"/>
+              </FormControl>
+             <br/>
+        </form>
       </div>
     )
   }
