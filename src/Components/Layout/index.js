@@ -4,6 +4,9 @@ import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import Menu from '@material-ui/core/Menu';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import IconButton from '@material-ui/core/IconButton';
 import { Link, withRouter } from 'react-router-dom'
 import { MenuList, MenuItem } from '@material-ui/core'
 import { compose } from 'recompose'
@@ -18,12 +21,13 @@ const styles = theme => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    backgroundColor: "#3d4977"
+    backgroundColor: "#3d4977",
+    minHeight: "70px"
   },
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
-    backgroundColor: "#f4f5fd",
+    background: "#f4f5fd",
     fontSize: "1rem",
     fontFamily: "Roboto",
     fontWeight: 400,
@@ -32,6 +36,7 @@ const styles = theme => ({
   },
   drawerPaper: {
     width: drawerWidth,
+    background: "#f4f5fd"
   },
   content: {
     flexGrow: 1,
@@ -40,22 +45,77 @@ const styles = theme => ({
   toolbar: theme.mixins.toolbar,
   menuLink: {
     fontWeight: "normal",
+  },
+  account: {
+    float: "right"
   }
 });
 
-
 class Layout extends Component {
+  constructor(props) {
+    super(props);
+    localStorage.clear()
+    this.state = {
+      anchorEl: null
+    }
+    this.handleClose= this.handleClose.bind(this);
+    this.handleMenu= this.handleMenu.bind(this);
+  }
+
+  handleClose = () => {
+    const { setAnchorEl } = this.state;
+    this.state.ancherEl = this.setState({ anchorEl: null })
+  };
+
+  handleMenu = (event) => {
+    const { anchorEl, setAnchorEl } = this.state;
+    this.state.ancherEl
+          ? this.setState({ anchorEl: null })
+          : this.setState({ anchorEl: event.currentTarget });
+  };
+
   render() {
     const { classes, location: { pathname }, children } = this.props
+    const { anchorEl } = this.state;
+    const open = Boolean(anchorEl);
 
     return <Fragment>
       <div className={classes.root}>
         <CssBaseline />
         <AppBar position="fixed" className={classes.appBar}>
           <Toolbar>
-            <Typography variant="h6" noWrap>
+            <Typography variant="h6">
               Nugget App
             </Typography>
+            <Typography style={{ flex: 1 }}>
+            <div className={classes.account}>
+              <IconButton
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={this.handleMenu}
+                color="inherit">
+              <AccountCircle />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={open}
+                onClose={this.handleClose}>
+                <MenuItem onClick={this.handleClose}>Profile</MenuItem>
+                <MenuItem onClick={this.handleClose}>My account</MenuItem>
+                </Menu>
+              </div>
+              </Typography>
           </Toolbar>
         </AppBar>
         <Drawer
