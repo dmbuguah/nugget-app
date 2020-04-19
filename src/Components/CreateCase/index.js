@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import BallotIcon from '@material-ui/icons/Ballot';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
 import { withStyles } from '@material-ui/core/styles'
@@ -59,7 +58,7 @@ class CreateCase extends Component {
                 <Grid item xs={3}>
                   <Paper className={classes.paper}>
                     <div className={classes.caseInfo}>
-                      <AssessmentIcon fontSize="large" />
+                      <AssessmentIcon fontSize="small" />
                       <h2 className={classes.header2}> All Cases</h2>
                     </div>
                     <h4 className={classes.header4}> 283,773 </h4>

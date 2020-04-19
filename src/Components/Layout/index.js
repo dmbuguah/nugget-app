@@ -5,12 +5,15 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import IconButton from '@material-ui/core/IconButton';
 import { Link, withRouter } from 'react-router-dom'
 import { MenuList, MenuItem } from '@material-ui/core'
 import { compose } from 'recompose'
 import { withStyles } from '@material-ui/core/styles'
+import ListIcon from '@material-ui/icons/List';
+import CreateIcon from '@material-ui/icons/Create';
 
 
 const drawerWidth = 240;
@@ -63,12 +66,10 @@ class Layout extends Component {
   }
 
   handleClose = () => {
-    const { setAnchorEl } = this.state;
     this.state.ancherEl = this.setState({ anchorEl: null })
   };
 
   handleMenu = (event) => {
-    const { anchorEl, setAnchorEl } = this.state;
     this.state.ancherEl
           ? this.setState({ anchorEl: null })
           : this.setState({ anchorEl: event.currentTarget });
@@ -128,10 +129,16 @@ class Layout extends Component {
           <div className={classes.toolbar} />
           <MenuList>
             <MenuItem component={Link} to="/" selected={'/' === pathname} className={classes.menuLink}>
-              Create Case
+              <ListItemIcon>
+                <CreateIcon fontSize="small" />
+              </ListItemIcon>
+              <span> Create Case </span>
             </MenuItem>
             <MenuItem component={Link} to="/list-cases" selected={'/list-cases' === pathname} className={classes.menuLink}>
-              List Cases
+            <ListItemIcon>
+              <ListIcon fontSize="small" />
+            </ListItemIcon>
+            <span>List Cases</span>
             </MenuItem>
           </MenuList>
         </Drawer>
