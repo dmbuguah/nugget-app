@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import BallotIcon from '@material-ui/icons/Ballot';
+import AssessmentIcon from '@material-ui/icons/Assessment';
 
 import { withStyles } from '@material-ui/core/styles'
 import MultiStep from 'react-multistep'
@@ -18,10 +20,10 @@ const styles = theme => ({
   },
   header2: {
     color: "#90caf9",
-    fontSize: "1.25rem",
+    fontSize: "1.2rem",
     fontFamily: "Roboto, Helvetica, Arial, sans-serif",
     textAlign: "left",
-    fontWeight: "700",
+    fontWeight: "500",
     marginBottom: "2px",
     paddingLeft: "10px"
   },
@@ -29,6 +31,10 @@ const styles = theme => ({
     fontSize: "2.125rem",
     textAlign: "left",
     paddingLeft: "10px"
+  },
+  caseInfo: {
+    display: "flex",
+    alignItems: "center"
   }
 })
 
@@ -47,13 +53,15 @@ class CreateCase extends Component {
               <Grid container spacing={2}>
                 <Grid item xs={9}>
                 <div style={createCase} className="multi-container">
-                  <h2 className={classes.header2}>Create Case</h2>
                   <MultiStep steps={steps} />
                 </div>
                 </Grid>
                 <Grid item xs={3}>
                   <Paper className={classes.paper}>
-                    <h2 className={classes.header2}> All Cases</h2>
+                    <div className={classes.caseInfo}>
+                      <AssessmentIcon fontSize="large" />
+                      <h2 className={classes.header2}> All Cases</h2>
+                    </div>
                     <h4 className={classes.header4}> 283,773 </h4>
                   </Paper>
                 </Grid>
