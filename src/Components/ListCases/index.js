@@ -18,6 +18,8 @@ import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import AssessmentIcon from '@material-ui/icons/Assessment';
+import { compose } from 'recompose'
+import { Redirect, withRouter } from 'react-router-dom'
 
 
 import axios from 'axios';
@@ -67,7 +69,9 @@ class ListCases extends Component {
     localStorage.clear()
     this.state = {
       cases: [],
-      rows: []
+      rows: [],
+      navigate: false,
+      caseId: null
     }
   }
 
@@ -104,7 +108,20 @@ class ListCases extends Component {
       })
    }
 
+   caseDitail() {
+
+   }
+
   render() {
+      const { navigate, caseId } = this.state
+      if (navigate) {
+         return <Redirect
+           to={{
+                pathname: "/analyse-case",
+                state: { id: 'id' }
+              }}
+          />
+      }
       return (
       <div style={{ maxWidth: "100%" }}>
         <MaterialTable
@@ -122,9 +139,13 @@ class ListCases extends Component {
             {
               icon: AssessmentIcon,
               tooltip: 'View analysis',
-              onClick: (event, rowData) => {
-                // Do save operation
-              }
+              onClick: (event, rowData) => this.setState({ navigate: true })
+              // {this.caseDitail}
+              // this.setState({ navigate: true })
+              // {
+              //     console.log(rowData)
+              //     return <Redirect to='/analyse-case' />
+              // }
             }
           ]}
           options={{
@@ -136,4 +157,7 @@ class ListCases extends Component {
   }
 }
 
-export default withStyles(styles)(ListCases)
+export default compose(
+  withRouter,
+  withStyles(styles)
+)(ListCases)
