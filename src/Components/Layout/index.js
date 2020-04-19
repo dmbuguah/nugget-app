@@ -4,7 +4,7 @@ import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { MenuList, MenuItem } from '@material-ui/core'
 import { compose } from 'recompose'
 import { withStyles } from '@material-ui/core/styles'
@@ -18,12 +18,12 @@ const styles = theme => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    backgroundColor: "#795548"
+    backgroundColor: "#3d4977"
   },
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
-    backgroundColor: "#d7ccc8",
+    backgroundColor: "#f4f5fd",
     fontSize: "1rem",
     fontFamily: "Roboto",
     fontWeight: 400,
@@ -46,7 +46,7 @@ const styles = theme => ({
 
 class Layout extends Component {
   render() {
-    const { classes, children } = this.props
+    const { classes, location: { pathname }, children } = this.props
 
     return <Fragment>
       <div className={classes.root}>
@@ -67,10 +67,10 @@ class Layout extends Component {
         >
           <div className={classes.toolbar} />
           <MenuList>
-            <MenuItem component={Link} to="/" className={classes.menuLink}>
+            <MenuItem component={Link} to="/" selected={'/' === pathname} className={classes.menuLink}>
               Create Case
             </MenuItem>
-            <MenuItem component={Link} to="/list-cases" className={classes.menuLink}>
+            <MenuItem component={Link} to="/list-cases" selected={'/list-cases' === pathname} className={classes.menuLink}>
               List Cases
             </MenuItem>
           </MenuList>
@@ -84,5 +84,6 @@ class Layout extends Component {
   }
 }
 export default compose(
+  withRouter,
   withStyles(styles)
 )(Layout)

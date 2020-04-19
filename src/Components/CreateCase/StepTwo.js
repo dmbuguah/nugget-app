@@ -8,6 +8,7 @@ import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import axios from 'axios'
 
 const styles = theme => ({
   formControl: {
@@ -73,8 +74,21 @@ class CaseTargetInfor extends Component {
   }
 
   handleSubmit = (event) =>{
+    const response = axios.post(
+        'http://127.0.0.1:8000/v1/case/cases/create_case/', {
+          'title': this.state.title,
+          'description': this.state.description,
+          'platform': this.state.case_target,
+          'file_path': this.state.target_path,
+          'extract': this.state.itarget_type
 
-    console.log(this.state)
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+    console.log(response)
     event.preventDefault();
   }
 

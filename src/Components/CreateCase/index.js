@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import MultiStep from 'react-multistep'
 import { steps } from './steps'
 
-import axios from 'axios'
-
 class CreateCase extends Component {
 
   render() {
