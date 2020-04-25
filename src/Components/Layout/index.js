@@ -79,6 +79,7 @@ class Layout extends Component {
     const { classes, location: { pathname }, children } = this.props
     const { anchorEl } = this.state;
     const open = Boolean(anchorEl);
+    // const navigate = () => this.props.history.push('/list-cases')
 
     return <Fragment>
       <div className={classes.root}>
@@ -134,7 +135,11 @@ class Layout extends Component {
               </ListItemIcon>
               <span> Create Case </span>
             </MenuItem>
-            <MenuItem component={Link} to="/list-cases" selected={'/list-cases' === pathname} className={classes.menuLink}>
+            <MenuItem
+              component={Link}
+              to="/list-cases"
+              selected={'/list-cases' === pathname || '/case/analyse-case/'}
+              className={classes.menuLink}>
             <ListItemIcon>
               <ListIcon fontSize="small" />
             </ListItemIcon>
