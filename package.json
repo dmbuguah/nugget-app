@@ -12,6 +12,7 @@
     "react-dom": "16.13.0",
     "react-multistep": "^4.0.1",
     "react-scripts": "^3.4.0",
+    "recharts": "^1.8.5",
     "recompose": "^0.30.0"
   },
   "scripts": {

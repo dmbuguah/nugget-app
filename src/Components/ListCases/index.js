@@ -21,7 +21,6 @@ import AssessmentIcon from '@material-ui/icons/Assessment';
 import { compose } from 'recompose'
 import { Redirect, withRouter } from 'react-router-dom'
 
-
 import axios from 'axios';
 
 
@@ -116,9 +115,10 @@ class ListCases extends Component {
       const { navigate, caseId } = this.state
       if (navigate) {
          return <Redirect
+           push
            to={{
-                pathname: "/analyse-case",
-                state: { id: 'id' }
+                pathname: "/case/analyse-case/" + caseId,
+                state: { id: caseId }
               }}
           />
       }
@@ -139,13 +139,9 @@ class ListCases extends Component {
             {
               icon: AssessmentIcon,
               tooltip: 'View analysis',
-              onClick: (event, rowData) => this.setState({ navigate: true })
-              // {this.caseDitail}
-              // this.setState({ navigate: true })
-              // {
-              //     console.log(rowData)
-              //     return <Redirect to='/analyse-case' />
-              // }
+              onClick: (event, rowData) => this.setState(
+                { navigate: true, caseId: rowData.id}
+              )
             }
           ]}
           options={{
