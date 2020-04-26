@@ -52,7 +52,13 @@ class AnalyseCase extends Component {
           x_axis: null,
           y_axis: null,
           analysis_data: null
-      }
+      },
+      sms_by_type_date: {
+          title: null,
+          x_axis: null,
+          y_axis: null,
+          analysis_data: null
+      },
     }
   }
 
@@ -71,11 +77,13 @@ class AnalyseCase extends Component {
             const cbc_keys = Object.keys(cases['calls_by_ctype']['analysis_data'][0]);
             const ssbd_keys = Object.keys(cases['sms_sent_by_day']['analysis_data'][0]);
             const srbd_keys = Object.keys(cases['sms_received_by_day']['analysis_data'][0]);
+            const sbtd_keys = Object.keys(cases['sms_by_type_date']['analysis_data'][0]);
 
             var calls_by_day = {...this.state.calls_by_day}
             var calls_by_ctype = {...this.state.calls_by_ctype}
             var sms_sent_by_day = {...this.state.sms_sent_by_day}
             var sms_received_by_day = {...this.state.sms_received_by_day}
+            var sms_by_type_date = {...this.state.sms_by_type_date}
 
             calls_by_day.analysis_data = cases['calls_by_day']['analysis_data']
             calls_by_day.x_axis = cbd_keys[0]
@@ -97,12 +105,18 @@ class AnalyseCase extends Component {
             sms_received_by_day.y_axis = srbd_keys[1]
             sms_received_by_day.title = cases['sms_received_by_day']['title']
 
+            sms_by_type_date.analysis_data = cases['sms_by_type_date']['analysis_data']
+            sms_by_type_date.x_axis = sbtd_keys[0]
+            sms_by_type_date.y_axis = sbtd_keys[1]
+            sms_by_type_date.title = cases['sms_by_type_date']['title']
+
             this.setState(
               {
                   calls_by_day: calls_by_day,
                   calls_by_ctype: calls_by_ctype,
                   sms_sent_by_day: sms_sent_by_day,
-                  sms_received_by_day: sms_received_by_day
+                  sms_received_by_day: sms_received_by_day,
+                  sms_by_type_date: sms_by_type_date
               })
 
             console.log(cases)
@@ -189,6 +203,50 @@ class AnalyseCase extends Component {
                      <Legend />
                       <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
                     </BarChart>
+                 </Paper>
+               </Grid>
+               <Grid item xs={6}>
+                 <Paper className={classes.paper}>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.sms_sent_by_day.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                   <BarChart width={600} height={300} data={this.state.sms_sent_by_day.analysis_data}
+                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                     <CartesianGrid strokeDasharray="3 3"/>
+                     <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
+                      <Label value="Day of contact" offset={0} position="insideBottom" />
+                    </XAxis>
+                     <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                     <Tooltip/>
+                     <Legend />
+                      <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
+                    </BarChart>
+                 </Paper>
+               </Grid>
+               <Grid item xs={6}>
+                 <Paper className={classes.paper}>
+                   <div>
+                     <div className={classes.caseGrid}>
+                       {this.state.sms_by_type_date.title}
+                       <hr className={classes.hr}/>
+                     </div>
+                   </div>
+                   <BarChart width={600} height={300} data={this.state.sms_by_type_date.analysis_data}
+                        margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+                   <CartesianGrid strokeDasharray="3 3"/>
+                   <XAxis dataKey="_sms_date">
+                    <Label value="SMS date" offset={0} position="insideBottom" />
+                  </XAxis>
+                   <YAxis label={{ value: 'No. Of SMS', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                   <Tooltip/>
+                   <Legend />
+                   <Bar dataKey="inbox" stackId="a" fill="#8884d8" />
+                   <Bar dataKey="sent" stackId="a" fill="#82ca9d" />
+                   <Bar dataKey="outbox" stackId="a" fill="#899a9d" />
+                  </BarChart>
                  </Paper>
                </Grid>
                <Grid item xs={6}>
