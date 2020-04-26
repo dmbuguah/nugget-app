@@ -12,6 +12,15 @@ import axios from 'axios';
 const styles = theme => ({
   root: {
     flexGrow: 1,
+  },
+  caseGrid: {
+    padding: "4px",
+    marginLeft: "14px",
+    fontSize: "1.2rem",
+    fontWeight: "400"
+  },
+  hr : {
+    border: "0.6px solid #ddd",
   }
 })
 
@@ -27,6 +36,18 @@ class AnalyseCase extends Component {
           analysis_data: null
       },
       calls_by_ctype: {
+          title: null,
+          x_axis: null,
+          y_axis: null,
+          analysis_data: null
+      },
+      sms_sent_by_day: {
+          title: null,
+          x_axis: null,
+          y_axis: null,
+          analysis_data: null
+      },
+      sms_received_by_day: {
           title: null,
           x_axis: null,
           y_axis: null,
@@ -48,26 +69,43 @@ class AnalyseCase extends Component {
             const cases = response.data;
             const cbd_keys = Object.keys(cases['calls_by_day']['analysis_data'][0]);
             const cbc_keys = Object.keys(cases['calls_by_ctype']['analysis_data'][0]);
+            const ssbd_keys = Object.keys(cases['sms_sent_by_day']['analysis_data'][0]);
+            const srbd_keys = Object.keys(cases['sms_received_by_day']['analysis_data'][0]);
 
             var calls_by_day = {...this.state.calls_by_day}
             var calls_by_ctype = {...this.state.calls_by_ctype}
+            var sms_sent_by_day = {...this.state.sms_sent_by_day}
+            var sms_received_by_day = {...this.state.sms_received_by_day}
 
             calls_by_day.analysis_data = cases['calls_by_day']['analysis_data']
             calls_by_day.x_axis = cbd_keys[0]
             calls_by_day.y_axis = cbd_keys[1]
+            calls_by_day.title = cases['calls_by_day']['title']
 
             calls_by_ctype.analysis_data = cases['calls_by_ctype']['analysis_data']
             calls_by_ctype.x_axis = cbc_keys[0]
             calls_by_ctype.y_axis = cbc_keys[1]
+            calls_by_ctype.title = cases['calls_by_ctype']['title']
 
+            sms_sent_by_day.analysis_data = cases['sms_sent_by_day']['analysis_data']
+            sms_sent_by_day.x_axis = ssbd_keys[0]
+            sms_sent_by_day.y_axis = ssbd_keys[1]
+            sms_sent_by_day.title = cases['sms_sent_by_day']['title']
+
+            sms_received_by_day.analysis_data = cases['sms_received_by_day']['analysis_data']
+            sms_received_by_day.x_axis = srbd_keys[0]
+            sms_received_by_day.y_axis = srbd_keys[1]
+            sms_received_by_day.title = cases['sms_received_by_day']['title']
 
             this.setState(
               {
                   calls_by_day: calls_by_day,
-                  calls_by_ctype: calls_by_ctype
+                  calls_by_ctype: calls_by_ctype,
+                  sms_sent_by_day: sms_sent_by_day,
+                  sms_received_by_day: sms_received_by_day
               })
 
-            console.log(this.state.calls_by_day.x_axis)
+            console.log(cases)
 
       })
   }
@@ -90,6 +128,12 @@ class AnalyseCase extends Component {
               <Grid container spacing={3}>
                <Grid item xs={6}>
                  <Paper className={classes.paper}>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.calls_by_day.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
                    <BarChart width={600} height={300} data={this.state.calls_by_day.analysis_data}
                           margin={{top: 5, right: 30, left: 20, bottom: 5}}>
                      <CartesianGrid strokeDasharray="3 3"/>
@@ -105,11 +149,19 @@ class AnalyseCase extends Component {
                </Grid>
                <Grid item xs={6}>
                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.calls_by_ctype.title}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
                  <BarChart width={600} height={300} data={this.state.calls_by_ctype.analysis_data}
                       margin={{top: 20, right: 30, left: 20, bottom: 5}}>
                  <CartesianGrid strokeDasharray="3 3"/>
-                 <XAxis dataKey="_call_date"/>
-                 <YAxis/>
+                 <XAxis dataKey="_call_date">
+                  <Label value="Day Of Call" offset={0} position="insideBottom" />
+                </XAxis>
+                 <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
                  <Tooltip/>
                  <Legend />
                  <Bar dataKey="incoming" stackId="a" fill="#8884d8" />
@@ -120,34 +172,46 @@ class AnalyseCase extends Component {
 
                <Grid item xs={6}>
                  <Paper className={classes.paper}>
-                   <BarChart width={600} height={300} data={this.state.calls_by_day.analysis_data}
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.sms_received_by_day.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                   <BarChart width={600} height={300} data={this.state.sms_received_by_day.analysis_data}
                           margin={{top: 5, right: 30, left: 20, bottom: 5}}>
                      <CartesianGrid strokeDasharray="3 3"/>
-                     <XAxis dataKey={this.state.calls_by_day.x_axis}>
-                      <Label value="Day Of Call" offset={0} position="insideBottom" />
+                     <XAxis dataKey={this.state.sms_received_by_day.x_axis}>
+                      <Label value="Day of contact" offset={0} position="insideBottom" />
                     </XAxis>
-                     <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                     <YAxis label={{ value: 'No. Of SMS received', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
                      <Tooltip/>
                      <Legend />
-                      <Bar dataKey="call_count" fill="#82ca9d" minPointSize={10} name='Call count'/>
+                      <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
                     </BarChart>
                  </Paper>
                </Grid>
                <Grid item xs={6}>
                  <Paper className={classes.paper}>
-                   <LineChart width={600} height={300} data={data}
-                         margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-                    <XAxis dataKey="name"/>
-                    <YAxis/>
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <Tooltip/>
-                    <Legend />
-                      <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{r: 8}}/>
-                      <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
-                   </LineChart>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.sms_sent_by_day.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                   <BarChart width={600} height={300} data={this.state.sms_sent_by_day.analysis_data}
+                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                     <CartesianGrid strokeDasharray="3 3"/>
+                     <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
+                      <Label value="Day of contact" offset={0} position="insideBottom" />
+                    </XAxis>
+                     <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                     <Tooltip/>
+                     <Legend />
+                      <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
+                    </BarChart>
                  </Paper>
                </Grid>
-
              </Grid>
             </div>
       )
