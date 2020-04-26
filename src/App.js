@@ -11,7 +11,7 @@ function App() {
       <Layout>
         <Switch>
           <Route exact path="/" component={CreateCase}/>
-          <Route path="/list-cases">
+          <Route exact path="/list-cases">
               <ListCases/>
           </Route>
           <Route path="/case/analyse-case/:id">
