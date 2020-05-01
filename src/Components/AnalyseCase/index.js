@@ -1,6 +1,7 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import PropTypes from 'prop-types'
 import {
     LineChart,
     Line,
@@ -20,7 +21,11 @@ import {withRouter } from 'react-router-dom'
 import MessageIcon from '@material-ui/icons/Message';
 import PhoneOutlinedIcon from '@material-ui/icons/PhoneOutlined';
 import LocationOnOutlinedIcon from '@material-ui/icons/LocationOnOutlined';
-
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 
 import axios from 'axios';
 
@@ -37,6 +42,10 @@ const styles = theme => ({
   },
   hr : {
     border: "0.6px solid #ddd",
+    // marginTop: "90px"
+  },
+  hr1 : {
+    border: "0.6px solid #ddd",
     marginTop: "90px"
   },
   maps: {
@@ -45,7 +54,6 @@ const styles = theme => ({
     height: "100%"
   },
   paper: {
-    height: "150px",
     padding: "10px"
   },
   extractIcon: {
@@ -79,15 +87,45 @@ const styles = theme => ({
   },
   extractInnerHeader: {
     lineHeight: "1"
+  },
+  gridWrapper: {
+    marginBottom: "20px"
+  },
+  appBar: {
+    background: "#1abdd1",
+    color: "black"
   }
 })
 
-const AnyReactComponent = ({ text }) => <div>{text}</div>;
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <Typography
+      component="div"
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box p={3}>{children}</Box>}
+    </Typography>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
+};
+
 class AnalyseCase extends Component {
   constructor(props) {
     super(props);
     this.state = {
       casesId: null,
+      value: 0,
       calls_by_day: {
           title: null,
           x_axis: null,
@@ -189,6 +227,16 @@ class AnalyseCase extends Component {
             console.log(this.state.bounds)
       })
   }
+  handleChange = (event, newValue) => {
+     this.setState({value:newValue})
+  };
+
+  a11yProps(index) {
+    return {
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    };
+  }
 
   render() {
       const { classes } = this.props
@@ -211,9 +259,11 @@ class AnalyseCase extends Component {
       for (var i = 0; i < points.length; i++) {
         bounds.extend(points[i]);
       }
+      const { value } = this.state;
 
       return (
         <div className={classes.root}>
+        <div className={classes.gridWrapper}>
           <Grid container spacing={3}>
             <Grid item xs={4}>
               <Paper className={classes.paper}>
@@ -228,7 +278,7 @@ class AnalyseCase extends Component {
                     <h6 className={classes.extractInnerHeader}> 1444</h6>
                   </div>
                 </div>
-                <hr className={classes.hr}/>
+                <hr className={classes.hr1}/>
                 <div className={classes.extractDescription}>
                   Message Information
                 </div>
@@ -247,7 +297,7 @@ class AnalyseCase extends Component {
                         <h6 className={classes.extractInnerHeader}> 1444</h6>
                     </div>
                   </div>
-                  <hr className={classes.hr}/>
+                  <hr className={classes.hr1}/>
                   <div className={classes.extractDescription}>
                     Calls Information
                   </div>
@@ -266,13 +316,173 @@ class AnalyseCase extends Component {
                       <h6 className={classes.extractInnerHeader}> 1444</h6>
                   </div>
                 </div>
-                <hr className={classes.hr}/>
+                <hr className={classes.hr1}/>
                 <div className={classes.extractDescription}>
                   Location Information
                 </div>
               </Paper>
             </Grid>
           </Grid>
+        </div>
+        <AppBar position="static" className={classes.appBar}>
+          <Tabs value={value} onChange={this.handleChange} aria-label="simple tabs example">
+            <Tab label="Messages" {...this.a11yProps(0)} />
+            <Tab label="Calls" {...this.a11yProps(1)} />
+            <Tab label="Location" {...this.a11yProps(2)} />
+          </Tabs>
+        </AppBar>
+        <TabPanel value={value} index={0}>
+          <div className={classes.root}>
+            <Grid container spacing={3}>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.sms_received_by_day.title}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
+                  <BarChart width={600} height={300} data={this.state.sms_received_by_day.analysis_data}
+                         margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey={this.state.sms_received_by_day.x_axis}>
+                     <Label value="Day of contact" offset={0} position="insideBottom" />
+                   </XAxis>
+                    <YAxis label={{ value: 'No. Of SMS received', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                    <Tooltip/>
+                    <Legend />
+                     <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
+                   </BarChart>
+                </Paper>
+              </Grid>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.sms_sent_by_day.title}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
+                  <BarChart width={600} height={300} data={this.state.sms_sent_by_day.analysis_data}
+                         margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
+                     <Label value="Day of contact" offset={0} position="insideBottom" />
+                   </XAxis>
+                    <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                    <Tooltip/>
+                    <Legend />
+                     <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
+                   </BarChart>
+                </Paper>
+              </Grid>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.sms_by_type_date.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                  <BarChart width={600} height={300} data={this.state.sms_by_type_date.analysis_data}
+                       margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis dataKey="_sms_date">
+                   <Label value="SMS date" offset={0} position="insideBottom" />
+                 </XAxis>
+                  <YAxis label={{ value: 'No. Of SMS', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                  <Tooltip/>
+                  <Legend />
+                  <Bar dataKey="inbox" stackId="a" fill="#8884d8" />
+                  <Bar dataKey="sent" stackId="a" fill="#82ca9d" />
+                  <Bar dataKey="outbox" stackId="a" fill="#899a9d" />
+                 </BarChart>
+                </Paper>
+              </Grid>
+            </Grid>
+          </div>
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <div className={classes.root}>
+            <Grid container spacing={3}>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.calls_by_day.title}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
+                  <BarChart width={600} height={300} data={this.state.calls_by_day.analysis_data}
+                         margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey={this.state.calls_by_day.x_axis}>
+                     <Label value="Day Of Call" offset={0} position="insideBottom" />
+                   </XAxis>
+                    <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                    <Tooltip/>
+                    <Legend />
+                     <Bar dataKey="call_count" fill="#82ca9d" minPointSize={10} name='Call count'/>
+                   </BarChart>
+                </Paper>
+              </Grid>
+              <Grid item xs={6}>
+              <Paper className={classes.paper}>
+                <div>
+                  <div className={classes.caseGrid}>
+                    {this.state.calls_by_ctype.title}
+                    <hr className={classes.hr}/>
+                  </div>
+                </div>
+                <BarChart width={600} height={300} data={this.state.calls_by_ctype.analysis_data}
+                     margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+                <CartesianGrid strokeDasharray="3 3"/>
+                <XAxis dataKey="_call_date">
+                 <Label value="Day Of Call" offset={0} position="insideBottom" />
+               </XAxis>
+                <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                <Tooltip/>
+                <Legend />
+                <Bar dataKey="incoming" stackId="a" fill="#8884d8" />
+                <Bar dataKey="outgoing" stackId="a" fill="#82ca9d" />
+               </BarChart>
+              </Paper>
+              </Grid>
+            </Grid>
+          </div>
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <div className={classes.root}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.location_case.title}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
+                 <div className={classes.maps}>
+                 <Map
+                     google={this.props.google}
+                     initialCenter={{
+                         lat: 42.39,
+                         lng: -72.52
+                     }}
+                     zoom={10}
+                     style={style}
+                     containerStyle={containerStyle}>
+                     <Marker
+                         name={'Dolores park'}
+                         position={{lat: 42.39, lng: -72.52}} />
+                       <Marker/>
+                   </Map>
+                   </div>
+                </Paper>
+              </Grid>
+            </Grid>
+          </div>
+          </TabPanel>
         </div>
       )
   }
