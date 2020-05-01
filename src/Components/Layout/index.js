@@ -66,7 +66,7 @@ class Layout extends Component {
   }
 
   handleClose = () => {
-    this.state.ancherEl = this.setState({ anchorEl: null })
+    this.setState({ anchorEl: null })
   };
 
   handleMenu = (event) => {
