@@ -38,7 +38,8 @@ const styles = theme => ({
     padding: "4px",
     marginLeft: "14px",
     fontSize: "1.2rem",
-    fontWeight: "400"
+    fontWeight: "400",
+    color: "#999"
   },
   hr : {
     border: "0.6px solid #ddd",
@@ -83,6 +84,7 @@ const styles = theme => ({
   },
   extractHeader: {
     fontSize: "14px",
+    color: "#999",
     fontFamily: "Roboto,Helvetica,Arial,sans-serif"
   },
   extractInnerHeader: {
@@ -94,6 +96,9 @@ const styles = theme => ({
   appBar: {
     background: "#1abdd1",
     color: "black"
+  },
+  extractDescription: {
+    color: "#999"
   }
 })
 
@@ -160,6 +165,11 @@ class AnalyseCase extends Component {
         title: null,
         analysis_data: null,
       },
+      dashboard_case: {
+        sms: 0,
+        call: 0,
+        location: 0
+      },
       bounds: null
     }
   }
@@ -185,6 +195,7 @@ class AnalyseCase extends Component {
             var sms_received_by_day = {...this.state.sms_received_by_day}
             var sms_by_type_date = {...this.state.sms_by_type_date}
             var location_case = {...this.state.location_case}
+            var dashboard_case = {...this.state.dashboard}
 
             calls_by_day.analysis_data = cases['calls_by_day']['analysis_data']
             calls_by_day.x_axis = cbd_keys[0]
@@ -214,6 +225,10 @@ class AnalyseCase extends Component {
             location_case.analysis_data = cases['location_case']['analysis_data']
             location_case.title = cases['location_case']['title']
 
+            dashboard_case.sms = cases['dashboard']['sms']
+            dashboard_case.call = cases['dashboard']['call']
+            dashboard_case.location = cases['dashboard']['location']
+
             this.setState(
               {
                   calls_by_day: calls_by_day,
@@ -221,7 +236,8 @@ class AnalyseCase extends Component {
                   sms_sent_by_day: sms_sent_by_day,
                   sms_received_by_day: sms_received_by_day,
                   sms_by_type_date: sms_by_type_date,
-                  location_case: location_case
+                  location_case: location_case,
+                  dashboard_case: dashboard_case
               })
 
             console.log(this.state.bounds)
@@ -275,7 +291,7 @@ class AnalyseCase extends Component {
                   </div>
                   <div className={classes.extractDetailInfo}>
                     <p className={classes.extractHeader}>Messages</p>
-                    <h6 className={classes.extractInnerHeader}> 1444</h6>
+                    <h6 className={classes.extractInnerHeader}>{this.state.dashboard_case.sms}</h6>
                   </div>
                 </div>
                 <hr className={classes.hr1}/>
@@ -293,8 +309,8 @@ class AnalyseCase extends Component {
                         </div>
                     </div>
                     <div className={classes.extractDetailInfo}>
-                        <p className={classes.extractHeader}>Calls</p>
-                        <h6 className={classes.extractInnerHeader}> 1444</h6>
+                        <p className={classes.extractHeader}>Call Logs</p>
+                        <h6 className={classes.extractInnerHeader}>{this.state.dashboard_case.call}</h6>
                     </div>
                   </div>
                   <hr className={classes.hr1}/>
@@ -313,7 +329,7 @@ class AnalyseCase extends Component {
                   </div>
                   <div className={classes.extractDetailInfo}>
                       <p className={classes.extractHeader}>Location</p>
-                      <h6 className={classes.extractInnerHeader}> 1444</h6>
+                      <h6 className={classes.extractInnerHeader}>{this.state.dashboard_case.location}</h6>
                   </div>
                 </div>
                 <hr className={classes.hr1}/>
@@ -346,12 +362,15 @@ class AnalyseCase extends Component {
                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
                     <CartesianGrid strokeDasharray="3 3"/>
                     <XAxis dataKey={this.state.sms_received_by_day.x_axis}>
-                     <Label value="Day of contact" offset={0} position="insideBottom" />
+                     <Label value="Day of contact" offset={0} position="bottom" />
                    </XAxis>
-                    <YAxis label={{ value: 'No. Of SMS received', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                    <YAxis
+
+                      label={{ value: 'No. Of SMS received', angle: -90,
+                      position: 'insideBottomLeft', textAnchor: 'middle'}}/>
                     <Tooltip/>
                     <Legend />
-                     <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
+                     <Bar dataKey="sms_count" fill="#8884d8" minPointSize={10} name='SMS count'/>
                    </BarChart>
                 </Paper>
               </Grid>
@@ -367,9 +386,9 @@ class AnalyseCase extends Component {
                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
                     <CartesianGrid strokeDasharray="3 3"/>
                     <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
-                     <Label value="Day of contact" offset={0} position="insideBottom" />
+                     <Label value="Day of contact" offset={0} position="bottom" />
                    </XAxis>
-                    <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                    <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
                     <Tooltip/>
                     <Legend />
                      <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
@@ -388,9 +407,9 @@ class AnalyseCase extends Component {
                        margin={{top: 20, right: 30, left: 20, bottom: 5}}>
                   <CartesianGrid strokeDasharray="3 3"/>
                   <XAxis dataKey="_sms_date">
-                   <Label value="SMS date" offset={0} position="insideBottom" />
+                   <Label value="SMS date" offset={0} position="bottom" />
                  </XAxis>
-                  <YAxis label={{ value: 'No. Of SMS', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                  <YAxis label={{ value: 'No. Of SMS', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
                   <Tooltip/>
                   <Legend />
                   <Bar dataKey="inbox" stackId="a" fill="#8884d8" />
@@ -417,9 +436,9 @@ class AnalyseCase extends Component {
                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
                     <CartesianGrid strokeDasharray="3 3"/>
                     <XAxis dataKey={this.state.calls_by_day.x_axis}>
-                     <Label value="Day Of Call" offset={0} position="insideBottom" />
+                     <Label value="Day Of Call" offset={0} position="bottom" />
                    </XAxis>
-                    <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                    <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
                     <Tooltip/>
                     <Legend />
                      <Bar dataKey="call_count" fill="#82ca9d" minPointSize={10} name='Call count'/>
@@ -438,9 +457,9 @@ class AnalyseCase extends Component {
                      margin={{top: 20, right: 30, left: 20, bottom: 5}}>
                 <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="_call_date">
-                 <Label value="Day Of Call" offset={0} position="insideBottom" />
+                 <Label value="Day Of Call" offset={0} position="bottom" />
                </XAxis>
-                <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
+                <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
                 <Tooltip/>
                 <Legend />
                 <Bar dataKey="incoming" stackId="a" fill="#8884d8" />
