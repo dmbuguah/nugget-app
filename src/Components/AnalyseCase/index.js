@@ -17,6 +17,10 @@ import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { compose } from 'recompose'
 import { withStyles } from '@material-ui/core/styles'
 import {withRouter } from 'react-router-dom'
+import MessageIcon from '@material-ui/icons/Message';
+import PhoneOutlinedIcon from '@material-ui/icons/PhoneOutlined';
+import LocationOnOutlinedIcon from '@material-ui/icons/LocationOnOutlined';
+
 
 import axios from 'axios';
 
@@ -33,11 +37,48 @@ const styles = theme => ({
   },
   hr : {
     border: "0.6px solid #ddd",
+    marginTop: "90px"
   },
   maps: {
     padding: "10px",
     width: "100%",
     height: "100%"
+  },
+  paper: {
+    height: "150px",
+    padding: "10px"
+  },
+  extractIcon: {
+    marginTop: "-23px",
+    width: "65px",
+    height: "65px",
+    background: "#1abdd1",
+    display: "flex",
+    justifyContent: "center",
+    borderRadius: "3px",
+    float: "left"
+  },
+  innerExtractIcon: {
+    height: "fit-content",
+    width: "fit-content",
+    marginTop: "14px"
+  },
+  header4: {
+    fontSize: "2.125rem",
+    textAlign: "left",
+    paddingLeft: "10px"
+  },
+  extractDetailInfo: {
+    float: "right"
+  },
+  encloseExtract: {
+  },
+  extractHeader: {
+    fontSize: "14px",
+    fontFamily: "Roboto,Helvetica,Arial,sans-serif"
+  },
+  extractInnerHeader: {
+    lineHeight: "1"
   }
 })
 
@@ -172,155 +213,67 @@ class AnalyseCase extends Component {
       }
 
       return (
-            <div className={classes.root}>
-              <Grid container spacing={3}>
-               <Grid item xs={6}>
-                 <Paper className={classes.paper}>
-                  <div>
-                    <div className={classes.caseGrid}>
-                      {this.state.calls_by_day.title}
-                      <hr className={classes.hr}/>
+        <div className={classes.root}>
+          <Grid container spacing={3}>
+            <Grid item xs={4}>
+              <Paper className={classes.paper}>
+                <div className={classes.encloseExtract}>
+                  <div className={classes.extractIcon}>
+                      <div className={classes.innerExtractIcon}>
+                        <MessageIcon fontSize="large" />
+                      </div>
+                  </div>
+                  <div className={classes.extractDetailInfo}>
+                    <p className={classes.extractHeader}>Messages</p>
+                    <h6 className={classes.extractInnerHeader}> 1444</h6>
+                  </div>
+                </div>
+                <hr className={classes.hr}/>
+                <div className={classes.extractDescription}>
+                  Message Information
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={4}>
+              <Paper className={classes.paper}>
+                <div className={classes.encloseExtract}>
+                    <div className={classes.extractIcon}>
+                        <div className={classes.innerExtractIcon}>
+                          <PhoneOutlinedIcon fontSize="large" />
+                        </div>
+                    </div>
+                    <div className={classes.extractDetailInfo}>
+                        <p className={classes.extractHeader}>Calls</p>
+                        <h6 className={classes.extractInnerHeader}> 1444</h6>
                     </div>
                   </div>
-                   <BarChart width={600} height={300} data={this.state.calls_by_day.analysis_data}
-                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-                     <CartesianGrid strokeDasharray="3 3"/>
-                     <XAxis dataKey={this.state.calls_by_day.x_axis}>
-                      <Label value="Day Of Call" offset={0} position="insideBottom" />
-                    </XAxis>
-                     <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
-                     <Tooltip/>
-                     <Legend />
-                      <Bar dataKey="call_count" fill="#82ca9d" minPointSize={10} name='Call count'/>
-                    </BarChart>
-                 </Paper>
-               </Grid>
-               <Grid item xs={6}>
-               <Paper className={classes.paper}>
-                 <div>
-                   <div className={classes.caseGrid}>
-                     {this.state.calls_by_ctype.title}
-                     <hr className={classes.hr}/>
-                   </div>
-                 </div>
-                 <BarChart width={600} height={300} data={this.state.calls_by_ctype.analysis_data}
-                      margin={{top: 20, right: 30, left: 20, bottom: 5}}>
-                 <CartesianGrid strokeDasharray="3 3"/>
-                 <XAxis dataKey="_call_date">
-                  <Label value="Day Of Call" offset={0} position="insideBottom" />
-                </XAxis>
-                 <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
-                 <Tooltip/>
-                 <Legend />
-                 <Bar dataKey="incoming" stackId="a" fill="#8884d8" />
-                 <Bar dataKey="outgoing" stackId="a" fill="#82ca9d" />
-                </BarChart>
-               </Paper>
-               </Grid>
-
-               <Grid item xs={6}>
-                 <Paper className={classes.paper}>
-                  <div>
-                    <div className={classes.caseGrid}>
-                      {this.state.sms_received_by_day.title}
-                      <hr className={classes.hr}/>
-                    </div>
+                  <hr className={classes.hr}/>
+                  <div className={classes.extractDescription}>
+                    Calls Information
                   </div>
-                   <BarChart width={600} height={300} data={this.state.sms_received_by_day.analysis_data}
-                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-                     <CartesianGrid strokeDasharray="3 3"/>
-                     <XAxis dataKey={this.state.sms_received_by_day.x_axis}>
-                      <Label value="Day of contact" offset={0} position="insideBottom" />
-                    </XAxis>
-                     <YAxis label={{ value: 'No. Of SMS received', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
-                     <Tooltip/>
-                     <Legend />
-                      <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
-                    </BarChart>
-                 </Paper>
-               </Grid>
-               <Grid item xs={6}>
-                 <Paper className={classes.paper}>
-                  <div>
-                    <div className={classes.caseGrid}>
-                      {this.state.sms_sent_by_day.title}
-                      <hr className={classes.hr}/>
-                    </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={4}>
+              <Paper className={classes.paper}>
+                <div className={classes.encloseExtract}>
+                  <div className={classes.extractIcon}>
+                      <div className={classes.innerExtractIcon}>
+                        <LocationOnOutlinedIcon fontSize="large" />
+                      </div>
                   </div>
-                   <BarChart width={600} height={300} data={this.state.sms_sent_by_day.analysis_data}
-                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-                     <CartesianGrid strokeDasharray="3 3"/>
-                     <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
-                      <Label value="Day of contact" offset={0} position="insideBottom" />
-                    </XAxis>
-                     <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
-                     <Tooltip/>
-                     <Legend />
-                      <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
-                    </BarChart>
-                 </Paper>
-               </Grid>
-               <Grid item xs={6}>
-                 <Paper className={classes.paper}>
-                   <div>
-                     <div className={classes.caseGrid}>
-                       {this.state.sms_by_type_date.title}
-                       <hr className={classes.hr}/>
-                     </div>
-                   </div>
-                   <BarChart width={600} height={300} data={this.state.sms_by_type_date.analysis_data}
-                        margin={{top: 20, right: 30, left: 20, bottom: 5}}>
-                   <CartesianGrid strokeDasharray="3 3"/>
-                   <XAxis dataKey="_sms_date">
-                    <Label value="SMS date" offset={0} position="insideBottom" />
-                  </XAxis>
-                   <YAxis label={{ value: 'No. Of SMS', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
-                   <Tooltip/>
-                   <Legend />
-                   <Bar dataKey="inbox" stackId="a" fill="#8884d8" />
-                   <Bar dataKey="sent" stackId="a" fill="#82ca9d" />
-                   <Bar dataKey="outbox" stackId="a" fill="#899a9d" />
-                  </BarChart>
-                 </Paper>
-               </Grid>
-               <Grid item xs={6}>
-                 <Paper className={classes.paper}>
-                  <div>
-                    <div className={classes.caseGrid}>
-                      {this.state.sms_sent_by_day.title}
-                      <hr className={classes.hr}/>
-                    </div>
+                  <div className={classes.extractDetailInfo}>
+                      <p className={classes.extractHeader}>Location</p>
+                      <h6 className={classes.extractInnerHeader}> 1444</h6>
                   </div>
-                 </Paper>
-               </Grid>
-               <Grid item xs={12}>
-                 <Paper className={classes.paper}>
-                  <div>
-                    <div className={classes.caseGrid}>
-                      {this.state.location_case.title}
-                      <hr className={classes.hr}/>
-                    </div>
-                  </div>
-                  <div className={classes.maps}>
-                  <Map
-                      google={this.props.google}
-                      initialCenter={{
-                          lat: 42.39,
-                          lng: -72.52
-                      }}
-                      zoom={10}
-                      style={style}
-                      containerStyle={containerStyle}>
-                      <Marker
-                          name={'Dolores park'}
-                          position={{lat: 42.39, lng: -72.52}} />
-                        <Marker/>
-                    </Map>
-                    </div>
-                 </Paper>
-               </Grid>
-             </Grid>
-            </div>
+                </div>
+                <hr className={classes.hr}/>
+                <div className={classes.extractDescription}>
+                  Location Information
+                </div>
+              </Paper>
+            </Grid>
+          </Grid>
+        </div>
       )
   }
 }
