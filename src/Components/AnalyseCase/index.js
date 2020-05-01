@@ -1,7 +1,19 @@
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, Label} from 'recharts';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    BarChart,
+    Bar, Label
+} from 'recharts';
+
+import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
 import { compose } from 'recompose'
 import { withStyles } from '@material-ui/core/styles'
 import {withRouter } from 'react-router-dom'
@@ -21,9 +33,15 @@ const styles = theme => ({
   },
   hr : {
     border: "0.6px solid #ddd",
+  },
+  maps: {
+    padding: "10px",
+    width: "100%",
+    height: "100%"
   }
 })
 
+const AnyReactComponent = ({ text }) => <div>{text}</div>;
 class AnalyseCase extends Component {
   constructor(props) {
     super(props);
@@ -59,10 +77,13 @@ class AnalyseCase extends Component {
           y_axis: null,
           analysis_data: null
       },
+      location_case: {
+        title: null,
+        analysis_data: null,
+      },
+      bounds: null
     }
   }
-
-  // console.log(this.props.location.state.id)
 
   componentDidMount() {
     const caseId = this.props.location.state.id
@@ -84,6 +105,7 @@ class AnalyseCase extends Component {
             var sms_sent_by_day = {...this.state.sms_sent_by_day}
             var sms_received_by_day = {...this.state.sms_received_by_day}
             var sms_by_type_date = {...this.state.sms_by_type_date}
+            var location_case = {...this.state.location_case}
 
             calls_by_day.analysis_data = cases['calls_by_day']['analysis_data']
             calls_by_day.x_axis = cbd_keys[0]
@@ -110,32 +132,44 @@ class AnalyseCase extends Component {
             sms_by_type_date.y_axis = sbtd_keys[1]
             sms_by_type_date.title = cases['sms_by_type_date']['title']
 
+            location_case.analysis_data = cases['location_case']['analysis_data']
+            location_case.title = cases['location_case']['title']
+
             this.setState(
               {
                   calls_by_day: calls_by_day,
                   calls_by_ctype: calls_by_ctype,
                   sms_sent_by_day: sms_sent_by_day,
                   sms_received_by_day: sms_received_by_day,
-                  sms_by_type_date: sms_by_type_date
+                  sms_by_type_date: sms_by_type_date,
+                  location_case: location_case
               })
 
-            console.log(cases)
-
+            console.log(this.state.bounds)
       })
   }
 
   render() {
       const { classes } = this.props
-
-      const data = [
-            {name: 'Page A', uv: 4000, pv: 2400, amt: 2400},
-            {name: 'Page B', uv: 3000, pv: 1398, amt: 2210},
-            {name: 'Page C', uv: 2000, pv: 9800, amt: 2290},
-            {name: 'Page D', uv: 2780, pv: 3908, amt: 2000},
-            {name: 'Page E', uv: 1890, pv: 4800, amt: 2181},
-            {name: 'Page F', uv: 2390, pv: 3800, amt: 2500},
-            {name: 'Page G', uv: 3490, pv: 4300, amt: 2100},
-      ];
+      const style = {
+        position: "relative",
+        height: "500px"
+      };
+      const containerStyle = {
+        position: "relative",
+        width: '100%',
+        height: '100%'
+      };
+      var points = [
+          { lat: 42.02, lng: -77.01 },
+          { lat: 42.03, lng: -77.02 },
+          { lat: 41.03, lng: -77.04 },
+          { lat: 42.05, lng: -77.02 }
+      ]
+      var bounds = new this.props.google.maps.LatLngBounds();
+      for (var i = 0; i < points.length; i++) {
+        bounds.extend(points[i]);
+      }
 
       return (
             <div className={classes.root}>
@@ -257,17 +291,32 @@ class AnalyseCase extends Component {
                       <hr className={classes.hr}/>
                     </div>
                   </div>
-                   <BarChart width={600} height={300} data={this.state.sms_sent_by_day.analysis_data}
-                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-                     <CartesianGrid strokeDasharray="3 3"/>
-                     <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
-                      <Label value="Day of contact" offset={0} position="insideBottom" />
-                    </XAxis>
-                     <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideLeft', textAnchor: 'middle' }}/>
-                     <Tooltip/>
-                     <Legend />
-                      <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
-                    </BarChart>
+                 </Paper>
+               </Grid>
+               <Grid item xs={12}>
+                 <Paper className={classes.paper}>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.location_case.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                  <div className={classes.maps}>
+                  <Map
+                      google={this.props.google}
+                      initialCenter={{
+                          lat: 42.39,
+                          lng: -72.52
+                      }}
+                      zoom={10}
+                      style={style}
+                      containerStyle={containerStyle}>
+                      <Marker
+                          name={'Dolores park'}
+                          position={{lat: 42.39, lng: -72.52}} />
+                        <Marker/>
+                    </Map>
+                    </div>
                  </Paper>
                </Grid>
              </Grid>
@@ -278,5 +327,6 @@ class AnalyseCase extends Component {
 
 export default compose(
   withRouter,
-  withStyles(styles)
+  withStyles(styles),
+  GoogleApiWrapper({apiKey: ('AIzaSyA_IzAR-eryh3_wh1iR3wfsGQoBMxi0HTo')})
 ) (AnalyseCase)
