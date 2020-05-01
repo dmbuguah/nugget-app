@@ -79,8 +79,7 @@ class Layout extends Component {
     const { classes, location: { pathname }, children } = this.props
     const { anchorEl } = this.state;
     const open = Boolean(anchorEl);
-    // const navigate = () => this.props.history.push('/list-cases')
-
+  
     return <Fragment>
       <div className={classes.root}>
         <CssBaseline />
