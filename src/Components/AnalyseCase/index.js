@@ -185,7 +185,8 @@ class AnalyseCase extends Component {
         call: 0,
         location: 0
       },
-      selectedDate: new Date('2014-08-18T21:11:54'),
+      selectedToDate: new Date('2014-08-18T21:11:54'),
+      selectedFromDate: new Date('2014-08-18T21:11:54'),
       selectedPlace: {},
       activeMarker: {},
       showingInfoWindow: true,
@@ -259,16 +260,40 @@ class AnalyseCase extends Component {
                   location_case: location_case,
                   dashboard_case: dashboard_case
               })
-
-            console.log(this.state.location_case.analysis_data)
       })
   }
   handleChange = (event, newValue) => {
      this.setState({value:newValue})
   };
 
-  handleDateChange = (date) => {
-    this.setState({selectedDate:date})
+  handleFromDateChange = (date) => {
+    this.setState({selectedFromDate:date})
+  };
+
+  handleToDateChange = (date) => {
+    this.setState({selectedToDate:date})
+
+    axios.get(
+        `http://127.0.0.1:8000/v1/case/cases/location_analysis/`, {
+          params: {
+              caseId: this.props.location.state.id,
+              dateFrom: this.state.selectedFromDate,
+              dateTo: this.state.selectedToDate
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+            const cases = response.data;
+            var location_case = {...this.state.location_case}
+
+            location_case.analysis_data = cases['location_case']['analysis_data']
+            location_case.title = cases['location_case']['title']
+            this.setState(
+              {
+                location_case: location_case
+              })
+        })
   };
 
   onMarkerClick = (props, marker, e) => {
@@ -533,10 +558,10 @@ class AnalyseCase extends Component {
                        variant="inline"
                        format="MM/dd/yyyy"
                        margin="normal"
-                       id="date-picker-from"
-                       label="From"
-                       value={this.state.selectedDate}
-                       onChange={this.handleDateChange}
+                       id="date-picker-to"
+                       label="To"
+                       value={this.state.selectedToDate}
+                       onChange={this.handleToDateChange}
                        KeyboardButtonProps={{
                          'aria-label': 'change date',
                        }}/>
@@ -547,10 +572,10 @@ class AnalyseCase extends Component {
                        variant="inline"
                        format="MM/dd/yyyy"
                        margin="normal"
-                       id="date-picker-to"
-                       label="To"
-                       value={this.state.selectedDate}
-                       onChange={this.handleDateChange}
+                       id="date-picker-from"
+                       label="From"
+                       value={this.state.selectedFromDate}
+                       onChange={this.handleFromDateChange}
                        KeyboardButtonProps={{
                          'aria-label': 'change date',
                        }}/>
