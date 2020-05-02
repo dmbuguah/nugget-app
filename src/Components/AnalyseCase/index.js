@@ -1,3 +1,4 @@
+import 'date-fns';
 import React, { Component } from 'react'
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -26,6 +27,12 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
 
 import axios from 'axios';
 
@@ -99,6 +106,14 @@ const styles = theme => ({
   },
   extractDescription: {
     color: "#999"
+  },
+  datePicker: {
+    float: "right",
+    marginLeft: "20px"
+  },
+  datePickerOutLine: {
+    display: "flow-root",
+    padding: "10px"
   }
 })
 
@@ -170,7 +185,8 @@ class AnalyseCase extends Component {
         call: 0,
         location: 0
       },
-      bounds: null
+      bounds: null,
+      selectedDate: new Date('2014-08-18T21:11:54')
     }
   }
 
@@ -246,6 +262,10 @@ class AnalyseCase extends Component {
   handleChange = (event, newValue) => {
      this.setState({value:newValue})
   };
+  handleDateChange = (date) => {
+    this.setState({selectedDate:date})
+  };
+
 
   a11yProps(index) {
     return {
@@ -473,13 +493,45 @@ class AnalyseCase extends Component {
         <TabPanel value={value} index={2}>
           <div className={classes.root}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid item xs={9}>
                 <Paper className={classes.paper}>
                  <div>
                    <div className={classes.caseGrid}>
                      {this.state.location_case.title}
                      <hr className={classes.hr}/>
                    </div>
+                 </div>
+                 <div className={classes.datePickerOutLine}>
+                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                   <div className={classes.datePicker}>
+                     <KeyboardDatePicker
+                       disableToolbar
+                       variant="inline"
+                       format="MM/dd/yyyy"
+                       margin="normal"
+                       id="date-picker-from"
+                       label="From"
+                       value={this.state.selectedDate}
+                       onChange={this.handleDateChange}
+                       KeyboardButtonProps={{
+                         'aria-label': 'change date',
+                       }}/>
+                    </div>
+                    <div className={classes.datePicker}>
+                     <KeyboardDatePicker
+                       disableToolbar
+                       variant="inline"
+                       format="MM/dd/yyyy"
+                       margin="normal"
+                       id="date-picker-to"
+                       label="To"
+                       value={this.state.selectedDate}
+                       onChange={this.handleDateChange}
+                       KeyboardButtonProps={{
+                         'aria-label': 'change date',
+                       }}/>
+                     </div>
+                   </MuiPickersUtilsProvider>
                  </div>
                  <div className={classes.maps}>
                  <Map
@@ -498,6 +550,16 @@ class AnalyseCase extends Component {
                    </Map>
                    </div>
                 </Paper>
+              </Grid>
+              <Grid item xs={3}>
+              <Paper className={classes.paper}>
+                <div>
+                  <div className={classes.caseGrid}>
+                    Location analysis
+                    <hr className={classes.hr}/>
+                  </div>
+                </div>
+              </Paper>
               </Grid>
             </Grid>
           </div>

@@ -4,10 +4,15 @@ import Layout from './Components/Layout'
 import ListCases from './Components/ListCases'
 import CreateCase from './Components/CreateCase'
 import AnalyseCase from './Components/AnalyseCase'
+import Auth from './Components/Auth'
+import {ProtectedRoute} from './Components/ProtectedRoute'
 
 function App() {
   return (
     <BrowserRouter>
+      <Route path="/auth">
+          <div>name</div>
+      </Route>
       <Layout>
         <Switch>
           <Route exact path="/" component={CreateCase}/>
