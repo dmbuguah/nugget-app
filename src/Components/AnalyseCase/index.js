@@ -4,8 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types'
 import {
-    LineChart,
-    Line,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -29,7 +27,6 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import {
   MuiPickersUtilsProvider,
-  KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
@@ -114,6 +111,14 @@ const styles = theme => ({
   datePickerOutLine: {
     display: "flow-root",
     padding: "10px"
+  },
+  locationTitle: {
+    fontSize: "14px",
+    fontWeight: 500,
+    color: "#333"
+  },
+  locationBTitle: {
+    fontSize: "13px"
   }
 })
 
@@ -190,8 +195,9 @@ class AnalyseCase extends Component {
       selectedPlace: {},
       activeMarker: {},
       showingInfoWindow: true,
-      title: null
-
+      title: null,
+      address: null,
+      timestamp: null
     }
   }
 
@@ -278,7 +284,7 @@ class AnalyseCase extends Component {
           params: {
               caseId: this.props.location.state.id,
               dateFrom: this.state.selectedFromDate,
-              dateTo: this.state.selectedToDate
+              dateTo: date
           },
           headers: {
             'Content-Type': 'application/json'
@@ -297,11 +303,15 @@ class AnalyseCase extends Component {
   };
 
   onMarkerClick = (props, marker, e) => {
+    var mydate = new Date(marker.timestamp);
+
     this.setState({
       selectedPlace: props,
       activeMarker: marker,
       showingInfoWindow: true,
-      title: "Kitu"
+      title: marker.aplace,
+      address: marker.address,
+      timestamp: mydate.toString()
     });
     console.log(marker)
   }
@@ -341,6 +351,9 @@ class AnalyseCase extends Component {
           <Marker
             {...props}
             id={marker.id}
+            address={marker.address}
+            aplace={marker.place}
+            timestamp={marker.timestamp}
             onClick={this.onMarkerClick}
             position={{lat: marker.lat, lng: marker.lng}}
            />)
@@ -598,7 +611,7 @@ class AnalyseCase extends Component {
                            marker={this.state.activeMarker}
                            visible={this.state.showingInfoWindow}>
                              <div>
-                               <h6>{this.state.title}</h6>
+                               <p>{this.state.title}</p>
                              </div>
                          </InfoWindow>
                    </Map>
@@ -609,8 +622,26 @@ class AnalyseCase extends Component {
               <Paper className={classes.paper}>
                 <div>
                   <div className={classes.caseGrid}>
-                    Location analysis
+                    Case Timeline
                     <hr className={classes.hr}/>
+                    <div>
+                      <p className={classes.locationTitle}> Place Name</p>
+                      <p className={classes.locationBTitle}>
+                        {this.state.title ? this.state.title: '-'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className={classes.locationTitle}> Place Address</p>
+                      <p className={classes.locationBTitle}>
+                        {this.state.address ? this.state.address: '-'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className={classes.locationTitle}> Date</p>
+                      <p className={classes.locationBTitle}>
+                        {this.state.timestamp ? this.state.timestamp: '-'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Paper>
