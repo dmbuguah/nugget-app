@@ -185,8 +185,12 @@ class AnalyseCase extends Component {
         call: 0,
         location: 0
       },
-      bounds: null,
-      selectedDate: new Date('2014-08-18T21:11:54')
+      selectedDate: new Date('2014-08-18T21:11:54'),
+      selectedPlace: {},
+      activeMarker: {},
+      showingInfoWindow: true,
+      title: null
+
     }
   }
 
@@ -256,14 +260,34 @@ class AnalyseCase extends Component {
                   dashboard_case: dashboard_case
               })
 
-            console.log(this.state.bounds)
+            console.log(this.state.location_case.analysis_data)
       })
   }
   handleChange = (event, newValue) => {
      this.setState({value:newValue})
   };
+
   handleDateChange = (date) => {
     this.setState({selectedDate:date})
+  };
+
+  onMarkerClick = (props, marker, e) => {
+    this.setState({
+      selectedPlace: props,
+      activeMarker: marker,
+      showingInfoWindow: true,
+      title: "Kitu"
+    });
+    console.log(marker)
+  }
+
+  onMapClicked = (props) => {
+    if (this.state.showingInfoWindow) {
+      this.setState({
+        showingInfoWindow: false,
+        activeMarker: null
+      })
+    }
   };
 
 
@@ -285,17 +309,17 @@ class AnalyseCase extends Component {
         width: '100%',
         height: '100%'
       };
-      var points = [
-          { lat: 42.02, lng: -77.01 },
-          { lat: 42.03, lng: -77.02 },
-          { lat: 41.03, lng: -77.04 },
-          { lat: 42.05, lng: -77.02 }
-      ]
-      var bounds = new this.props.google.maps.LatLngBounds();
-      for (var i = 0; i < points.length; i++) {
-        bounds.extend(points[i]);
-      }
       const { value } = this.state;
+
+      const Markers = props => (
+        this.state.location_case.analysis_data.map(marker =>
+          <Marker
+            {...props}
+            id={marker.id}
+            onClick={this.onMarkerClick}
+            position={{lat: marker.lat, lng: marker.lng}}
+           />)
+      )
 
       return (
         <div className={classes.root}>
@@ -536,17 +560,22 @@ class AnalyseCase extends Component {
                  <div className={classes.maps}>
                  <Map
                      google={this.props.google}
+                     onClick={this.onMapClicked}
                      initialCenter={{
-                         lat: 42.39,
-                         lng: -72.52
+                         lat: 38.8810628,
+                         lng: -77.11394929,
                      }}
                      zoom={10}
                      style={style}
                      containerStyle={containerStyle}>
-                     <Marker
-                         name={'Dolores park'}
-                         position={{lat: 42.39, lng: -72.52}} />
-                       <Marker/>
+                        <Markers/>
+                        <InfoWindow
+                           marker={this.state.activeMarker}
+                           visible={this.state.showingInfoWindow}>
+                             <div>
+                               <h6>{this.state.title}</h6>
+                             </div>
+                         </InfoWindow>
                    </Map>
                    </div>
                 </Paper>

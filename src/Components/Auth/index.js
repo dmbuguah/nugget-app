@@ -1,10 +1,4 @@
-import React, { Component } from 'react'
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-
 import { withStyles } from '@material-ui/core/styles'
-
 
 const styles = theme => ({
   root: {
@@ -17,9 +11,8 @@ const styles = theme => ({
   }
 })
 
-class Auth extends Component {
+class Auth {
   constructor() {
-    super()
     this.authenticated = false
   }
 
