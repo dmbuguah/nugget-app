@@ -59,7 +59,8 @@ const styles = theme => ({
     height: "100%"
   },
   paper: {
-    padding: "10px"
+    padding: "10px",
+    height: "100%"
   },
   extractIcon: {
     marginTop: "-23px",
@@ -154,7 +155,28 @@ const styles = theme => ({
   },
   tabs: {
     borderRight: `1px solid ${theme.palette.divider}`,
+    overflow: "unset"
   },
+  smsDivWrapper: {
+    marginBottom: "15px"
+  },
+  smsDiv: {
+    background: "#efe1e1",
+    padding: "5px",
+    borderRadius: "5px"
+  },
+  drDiv: {
+    fontSize: "12px",
+    textAlign: "right"
+  },
+  tabPanelVerticalDiv: {
+    width: "-webkit-fill-available"
+  },
+  noResult: {
+    textAlign: "center",
+    fontSize: "20px",
+    padding: "15%"
+  }
 
 })
 
@@ -188,7 +210,7 @@ function TabPanelVertical(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <Typography component='div'>{children}</Typography>
         </Box>
       )}
     </div>
@@ -279,8 +301,13 @@ class AnalyseCase extends Component {
         title: null,
         analysis_data: []
       },
+      s_sms_break_down: {
+        title: null,
+        analysis_data: []
+      },
       tabValue: 0,
-      maneno: ''
+      user_received_sms: [],
+      user_sent_sms: []
     }
   }
 
@@ -409,7 +436,30 @@ class AnalyseCase extends Component {
               {
                 r_sms_break_down: r_sms_break_down
               })
-            console.log(r_sms_break_down)
+        })
+  }
+
+  getSentSMS = (props) => {
+    axios.get(
+        `http://127.0.0.1:8000/v1/case/cases/get_sent_sms/`, {
+          params: {
+              caseId: this.props.location.state.id,
+              dateSent: props._comm_date,
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+            const cases = response.data;
+            var s_sms_break_down = {...this.state.s_sms_break_down}
+
+            s_sms_break_down.analysis_data = cases['sent_sms']['analysis_data']
+            s_sms_break_down.title = cases['sent_sms']['title']
+            this.setState(
+              {
+                s_sms_break_down: s_sms_break_down
+              })
+            console.log(s_sms_break_down)
         })
   }
 
@@ -546,16 +596,64 @@ class AnalyseCase extends Component {
             label={sms['user']}
             key={index}
             onChange= {() =>
-              this.setState({maneno: sms})
+              this.setState({user_received_sms: sms['sms']})
+            }
+            {...a11yPropsVertical(index)} />
+        )
+      )
+
+      const TabWrapperSent = props => (
+        this.state.s_sms_break_down.analysis_data.map((sms, index) =>
+          <Tab
+            label={sms['user']}
+            key={index}
+            onChange= {() =>
+              this.setState({user_sent_sms: sms['sms']})
             }
             {...a11yPropsVertical(index)} />
         )
       )
       const TabPanelVerticalWrapper = props => (
+            <TabPanelVertical
+              key={this.state.tabValue}
+              className={classes.tabPanelVerticalDiv}
+              value={this.state.tabValue} index={this.state.tabValue}>
+
+              {this.state.user_received_sms.length == 0 ?
+                  <div className={classes.noResult}>
+                    Click conversation bar for breakdown
+                    </div>: <span></span>
+              }
+
+              {this.state.user_received_sms.map((sms, index) =>
+                  <div className={classes.smsDivWrapper}>
+                    <div className={classes.smsDiv}>
+                      {sms['body']}
+                    </div>
+                    <div className={classes.drDiv}>{sms['date_received']}</div>
+                  </div>
+              )}
+            </TabPanelVertical>
+      )
+
+      const TabPanelVerticalSentWrapper = props => (
           <TabPanelVertical
             key={this.state.tabValue}
+            className={classes.tabPanelVerticalDiv}
             value={this.state.tabValue} index={this.state.tabValue}>
-            {this.state.maneno['user']}
+          {this.state.user_sent_sms.length == 0 ?
+              <div className={classes.noResult}>
+                Click conversation bar for breakdown
+                </div>: <span></span>
+          }
+          {this.state.user_sent_sms.map((sms, index) =>
+              <div className={classes.smsDivWrapper}>
+                <div className={classes.smsDiv}>
+                  {sms['body']}
+                </div>
+                <div className={classes.drDiv}>{sms['date_sent']}</div>
+              </div>
+          )}
           </TabPanelVertical>
       )
 
@@ -663,7 +761,7 @@ class AnalyseCase extends Component {
                 <Paper className={classes.paper}>
                  <div>
                    <div className={classes.caseGrid}>
-                     {this.state.r_sms_break_down.title || 'Received sms by date timeline'}
+                     {this.state.r_sms_break_down.title || 'Received sms breakdown by contact person'}
                      <hr className={classes.hr}/>
                    </div>
                  </div>
@@ -683,48 +781,53 @@ class AnalyseCase extends Component {
                 </Paper>
               </Grid>
               <Grid item xs={6}>
-                <Paper className={classes.paper}>
-                  <div>
-                    <div className={classes.caseGrid}>
-                      {this.state.sms_by_type_date.title}
-                      <hr className={classes.hr}/>
-                    </div>
-                  </div>
-                  <BarChart width={600} height={300} data={this.state.sms_by_type_date.analysis_data}
-                       margin={{top: 20, right: 30, left: 20, bottom: 5}}>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <XAxis dataKey="_sms_date">
-                   <Label value="SMS date" offset={0} position="bottom" />
-                 </XAxis>
-                  <YAxis label={{ value: 'No. Of SMS', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
-                  <Tooltip/>
-                  <Legend />
-                  <Bar dataKey="inbox" stackId="a" fill="#8884d8" />
-                  <Bar dataKey="sent" stackId="a" fill="#82ca9d" />
-                  <Bar dataKey="outbox" stackId="a" fill="#899a9d" />
-                 </BarChart>
+                  <Paper className={classes.paper}>
+                   <div>
+                     <div className={classes.caseGrid}>
+                       {this.state.sms_sent_by_day.title}
+                       <hr className={classes.hr}/>
+                     </div>
+                   </div>
+                    <BarChart width={600} height={300} data={this.state.sms_sent_by_day.analysis_data}
+                           margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                      <CartesianGrid strokeDasharray="3 3"/>
+                      <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
+                       <Label value="Day of contact" offset={0} position="bottom" />
+                     </XAxis>
+                      <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
+                      <Tooltip/>
+                      <Legend />
+                       <Bar
+                        dataKey="sms_count"
+                        fill="#82ca9d"
+                        minPointSize={10}
+                        name='SMS count'
+                        onClick={this.getSentSMS}/>
+                     </BarChart>
                 </Paper>
               </Grid>
               <Grid item xs={6}>
                 <Paper className={classes.paper}>
                  <div>
                    <div className={classes.caseGrid}>
-                     {this.state.sms_sent_by_day.title}
+                     {this.state.s_sms_break_down.title || 'Sent sms breakdown by contact person'}
                      <hr className={classes.hr}/>
                    </div>
                  </div>
-                  <BarChart width={600} height={300} data={this.state.sms_sent_by_day.analysis_data}
-                         margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis dataKey={this.state.sms_sent_by_day.x_axis}>
-                     <Label value="Day of contact" offset={0} position="bottom" />
-                   </XAxis>
-                    <YAxis label={{ value: 'No. Of SMS sent', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
-                    <Tooltip/>
-                    <Legend />
-                     <Bar dataKey="sms_count" fill="#82ca9d" minPointSize={10} name='SMS count'/>
-                   </BarChart>
-                </Paper>
+                 <div className={classes.verticalTab}>
+                    <Tabs
+                      orientation="vertical"
+                      variant="scrollable"
+                      value={this.state.tabValue}
+                      onChange={this.tabHandleChange}
+                      aria-label="Vertical tabs example"
+                      className={classes.tabs}
+                    >
+                     <TabWrapperSent/>
+                     </Tabs>
+                     <TabPanelVerticalSentWrapper/>
+                   </div>
+                 </Paper>
               </Grid>
               <Grid item xs={6}>
                 <Paper className={classes.paper}>
