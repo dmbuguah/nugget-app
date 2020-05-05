@@ -79,7 +79,7 @@ class Layout extends Component {
     const { classes, location: { pathname }, children } = this.props
     const { anchorEl } = this.state;
     const open = Boolean(anchorEl);
-  
+
     return <Fragment>
       <div className={classes.root}>
         <CssBaseline />
@@ -137,7 +137,7 @@ class Layout extends Component {
             <MenuItem
               component={Link}
               to="/list-cases"
-              selected={'/list-cases' === pathname || '/case/analyse-case/'}
+              selected={'/list-cases' === pathname || pathname === '/case/analyse-case/'}
               className={classes.menuLink}>
             <ListItemIcon>
               <ListIcon fontSize="small" />

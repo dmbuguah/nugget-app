@@ -119,7 +119,43 @@ const styles = theme => ({
   },
   locationBTitle: {
     fontSize: "13px"
-  }
+  },
+  sentRecipient: {
+    fontSize: "12px",
+    color: "#999",
+  },
+  dateSent: {
+    fontSize: "14px",
+    color: "#999",
+  },
+  sentMsg: {
+    border: "1px solid #999",
+    padding: "10px",
+    borderRadius: "10px",
+    marginLeft: "10px",
+    width: "-webkit-fill-available"
+  },
+  sentTitle: {
+    fontSize: "14px",
+    color: "#333"
+  },
+  encloseSent: {
+    display: "flex",
+    marginBottom: "3px"
+  },
+  sentInnerDiv: {
+    marginLeft: "10px"
+  },
+  verticalTab: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+    height: 224,
+  },
+  tabs: {
+    borderRight: `1px solid ${theme.palette.divider}`,
+  },
+
 })
 
 function TabPanel(props) {
@@ -139,10 +175,43 @@ function TabPanel(props) {
   );
 }
 
+function TabPanelVertical(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`vertical-tabpanel-${index}`}
+      aria-labelledby={`vertical-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={3}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
 TabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
+};
+
+TabPanelVertical.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
+}
+
+function a11yPropsVertical(index) {
+  return {
+    id: `vertical-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
 };
 
 class AnalyseCase extends Component {
@@ -197,7 +266,21 @@ class AnalyseCase extends Component {
       showingInfoWindow: true,
       title: null,
       address: null,
-      timestamp: null
+      timestamp: null,
+      location_timeline: {
+        title: null,
+        analysis_data: {
+          messages: [],
+          incoming_calls: [],
+          outgoing_calls: []
+        }
+      },
+      r_sms_break_down: {
+        title: null,
+        analysis_data: []
+      },
+      tabValue: 0,
+      maneno: ''
     }
   }
 
@@ -272,6 +355,10 @@ class AnalyseCase extends Component {
      this.setState({value:newValue})
   };
 
+  tabHandleChange = (event, newValue) => {
+     this.setState({tabValue:newValue})
+  };
+
   handleFromDateChange = (date) => {
     this.setState({selectedFromDate:date})
   };
@@ -302,6 +389,30 @@ class AnalyseCase extends Component {
         })
   };
 
+  getReceivedSMS = (props) => {
+    axios.get(
+        `http://127.0.0.1:8000/v1/case/cases/get_received_sms/`, {
+          params: {
+              caseId: this.props.location.state.id,
+              dateReceived: props._date_received,
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+            const cases = response.data;
+            var r_sms_break_down = {...this.state.r_sms_break_down}
+
+            r_sms_break_down.analysis_data = cases['received_sms']['analysis_data']
+            r_sms_break_down.title = cases['received_sms']['title']
+            this.setState(
+              {
+                r_sms_break_down: r_sms_break_down
+              })
+            console.log(r_sms_break_down)
+        })
+  }
+
   onMarkerClick = (props, marker, e) => {
     var mydate = new Date(marker.timestamp);
 
@@ -313,7 +424,23 @@ class AnalyseCase extends Component {
       address: marker.address,
       timestamp: mydate.toString()
     });
-    console.log(marker)
+
+    axios.get(
+        `http://127.0.0.1:8000/v1/case/cases/marker_analysis/`, {
+          params: {
+              caseId: this.props.location.state.id,
+              locationId: marker.id
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+            const cases = response.data;
+
+            var location_timeline = {...this.state.location_timeline}
+            location_timeline.analysis_data = cases['location_timeline']['analysis_data']
+            this.setState({location_timeline: location_timeline})
+        })
   }
 
   onMapClicked = (props) => {
@@ -358,6 +485,80 @@ class AnalyseCase extends Component {
             position={{lat: marker.lat, lng: marker.lng}}
            />)
       )
+
+      const Sent = props => (
+          this.state.location_timeline.analysis_data.messages.map((sms, index) =>
+            <div className={classes.encloseSingleSent}>
+                  { index >= 1 && <hr className={classes.hr}/>}
+                  <div>
+                    <div className={classes.sentTitle}>
+                      { sms.date_sent? <span> To </span> : <span> From </span>}
+                    </div>
+                    <div className={classes.sentRecipient}>
+                      {sms.recipient || sms.sender}
+                    </div>
+                  </div>
+                  <div>
+                    <div className={classes.sentTitle}> Date </div>
+                    <div className={classes.dateSent}>
+                      {sms.date_sent || sms.date_received}
+                    </div>
+                  </div>
+            </div>
+          )
+        )
+
+      const IncomingCalls = props => (
+          this.state.location_timeline.analysis_data.incoming_calls.map((calls, index) =>
+            <div className={classes.encloseSingleSent}>
+                  { index >= 1 && <hr className={classes.hr}/>}
+                  <div>
+                    <div className={classes.sentTitle}>
+                      { calls.ctype == 'outgoing' ? <span> To </span> : <span> From </span>}
+                      </div>
+                    <div className={classes.sentRecipient}>
+                      { calls.ctype == 'outgoing' ? 'Subject' : calls.cfrom }
+                      </div>
+                  </div>
+                  <div>
+                    <div className={classes.sentTitle}> Date </div>
+                    <div className={classes.dateSent}>{calls.date_called}</div>
+                  </div>
+            </div>
+          )
+        )
+
+      const SentIcon = props => (
+        <div>
+          <MessageIcon fontSize="large" />
+        </div>
+      )
+
+      const CallIcon = props => (
+        <div>
+          <PhoneOutlinedIcon fontSize="large" />
+        </div>
+      )
+
+      const TabWrapper = props => (
+        this.state.r_sms_break_down.analysis_data.map((sms, index) =>
+          <Tab
+            label={sms['user']}
+            key={index}
+            onChange= {() =>
+              this.setState({maneno: sms})
+            }
+            {...a11yPropsVertical(index)} />
+        )
+      )
+      const TabPanelVerticalWrapper = props => (
+          <TabPanelVertical
+            key={this.state.tabValue}
+            value={this.state.tabValue} index={this.state.tabValue}>
+            {this.state.maneno['user']}
+          </TabPanelVertical>
+      )
+
 
       return (
         <div className={classes.root}>
@@ -452,8 +653,56 @@ class AnalyseCase extends Component {
                       position: 'insideBottomLeft', textAnchor: 'middle'}}/>
                     <Tooltip/>
                     <Legend />
-                     <Bar dataKey="sms_count" fill="#8884d8" minPointSize={10} name='SMS count'/>
+                     <Bar dataKey="sms_count"
+                      fill="#8884d8" minPointSize={10}
+                      name='SMS count' onClick={this.getReceivedSMS}/>
                    </BarChart>
+                </Paper>
+              </Grid>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.r_sms_break_down.title || 'Received sms by date timeline'}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
+                <div className={classes.verticalTab}>
+                   <Tabs
+                     orientation="vertical"
+                     variant="scrollable"
+                     value={this.state.tabValue}
+                     onChange={this.tabHandleChange}
+                     aria-label="Vertical tabs example"
+                     className={classes.tabs}
+                   >
+                    <TabWrapper/>
+                    </Tabs>
+                    <TabPanelVerticalWrapper/>
+                  </div>
+                </Paper>
+              </Grid>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.sms_by_type_date.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                  <BarChart width={600} height={300} data={this.state.sms_by_type_date.analysis_data}
+                       margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis dataKey="_sms_date">
+                   <Label value="SMS date" offset={0} position="bottom" />
+                 </XAxis>
+                  <YAxis label={{ value: 'No. Of SMS', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
+                  <Tooltip/>
+                  <Legend />
+                  <Bar dataKey="inbox" stackId="a" fill="#8884d8" />
+                  <Bar dataKey="sent" stackId="a" fill="#82ca9d" />
+                  <Bar dataKey="outbox" stackId="a" fill="#899a9d" />
+                 </BarChart>
                 </Paper>
               </Grid>
               <Grid item xs={6}>
@@ -555,7 +804,7 @@ class AnalyseCase extends Component {
         <TabPanel value={value} index={2}>
           <div className={classes.root}>
             <Grid container spacing={3}>
-              <Grid item xs={9}>
+              <Grid item xs={8}>
                 <Paper className={classes.paper}>
                  <div>
                    <div className={classes.caseGrid}>
@@ -618,7 +867,7 @@ class AnalyseCase extends Component {
                    </div>
                 </Paper>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={4}>
               <Paper className={classes.paper}>
                 <div>
                   <div className={classes.caseGrid}>
@@ -641,6 +890,31 @@ class AnalyseCase extends Component {
                       <p className={classes.locationBTitle}>
                         {this.state.timestamp ? this.state.timestamp: '-'}
                       </p>
+                    </div>
+                    <div className={classes.encloseSent}>
+                      { this.state.location_timeline.analysis_data.messages.length > 0 ?
+                          <SentIcon/> : <span></span>
+                      }
+
+                      {
+                          this.state.location_timeline.analysis_data.messages.length >0  &&
+                          <div className={classes.sentMsg}>
+                            <Sent/>
+                          </div>
+                      }
+                    </div>
+
+                    <div className={classes.encloseSent}>
+                      { this.state.location_timeline.analysis_data.messages.length > 0 ?
+                          <CallIcon/> : <span></span>
+                      }
+
+                      {
+                          this.state.location_timeline.analysis_data.incoming_calls.length >0  &&
+                          <div className={classes.sentMsg}>
+                            <IncomingCalls/>
+                          </div>
+                      }
                     </div>
                   </div>
                 </div>
