@@ -242,7 +242,13 @@ class AnalyseCase extends Component {
     this.state = {
       casesId: null,
       value: 0,
-      calls_by_day: {
+      outgoing_calls_by_day: {
+          title: null,
+          x_axis: null,
+          y_axis: null,
+          analysis_data: null
+      },
+      incoming_calls_by_day: {
           title: null,
           x_axis: null,
           y_axis: null,
@@ -320,13 +326,15 @@ class AnalyseCase extends Component {
           }
         }).then((response) => {
             const cases = response.data;
-            const cbd_keys = Object.keys(cases['calls_by_day']['analysis_data'][0]);
+            const cbd_keys = Object.keys(cases['outgoing_calls_by_day']['analysis_data'][0]);
+            const icbd_keys = Object.keys(cases['incoming_calls_by_day']['analysis_data'][0]);
             const cbc_keys = Object.keys(cases['calls_by_ctype']['analysis_data'][0]);
             const ssbd_keys = Object.keys(cases['sms_sent_by_day']['analysis_data'][0]);
             const srbd_keys = Object.keys(cases['sms_received_by_day']['analysis_data'][0]);
             const sbtd_keys = Object.keys(cases['sms_by_type_date']['analysis_data'][0]);
 
-            var calls_by_day = {...this.state.calls_by_day}
+            var outgoing_calls_by_day = {...this.state.outgoing_calls_by_day}
+            var incoming_calls_by_day = {...this.state.incoming_calls_by_day}
             var calls_by_ctype = {...this.state.calls_by_ctype}
             var sms_sent_by_day = {...this.state.sms_sent_by_day}
             var sms_received_by_day = {...this.state.sms_received_by_day}
@@ -334,10 +342,15 @@ class AnalyseCase extends Component {
             var location_case = {...this.state.location_case}
             var dashboard_case = {...this.state.dashboard}
 
-            calls_by_day.analysis_data = cases['calls_by_day']['analysis_data']
-            calls_by_day.x_axis = cbd_keys[0]
-            calls_by_day.y_axis = cbd_keys[1]
-            calls_by_day.title = cases['calls_by_day']['title']
+            outgoing_calls_by_day.analysis_data = cases['outgoing_calls_by_day']['analysis_data']
+            outgoing_calls_by_day.x_axis = cbd_keys[0]
+            outgoing_calls_by_day.y_axis = cbd_keys[1]
+            outgoing_calls_by_day.title = cases['outgoing_calls_by_day']['title']
+
+            incoming_calls_by_day.analysis_data = cases['incoming_calls_by_day']['analysis_data']
+            incoming_calls_by_day.x_axis = icbd_keys[0]
+            incoming_calls_by_day.y_axis = icbd_keys[1]
+            incoming_calls_by_day.title = cases['incoming_calls_by_day']['title']
 
             calls_by_ctype.analysis_data = cases['calls_by_ctype']['analysis_data']
             calls_by_ctype.x_axis = cbc_keys[0]
@@ -368,7 +381,8 @@ class AnalyseCase extends Component {
 
             this.setState(
               {
-                  calls_by_day: calls_by_day,
+                  outgoing_calls_by_day: outgoing_calls_by_day,
+                  incoming_calls_by_day: incoming_calls_by_day,
                   calls_by_ctype: calls_by_ctype,
                   sms_sent_by_day: sms_sent_by_day,
                   sms_received_by_day: sms_received_by_day,
@@ -862,14 +876,14 @@ class AnalyseCase extends Component {
                 <Paper className={classes.paper}>
                  <div>
                    <div className={classes.caseGrid}>
-                     {this.state.calls_by_day.title}
+                     {this.state.incoming_calls_by_day.title}
                      <hr className={classes.hr}/>
                    </div>
                  </div>
-                  <BarChart width={600} height={300} data={this.state.calls_by_day.analysis_data}
+                  <BarChart width={600} height={300} data={this.state.incoming_calls_by_day.analysis_data}
                          margin={{top: 5, right: 30, left: 20, bottom: 5}}>
                     <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis dataKey={this.state.calls_by_day.x_axis}>
+                    <XAxis dataKey={this.state.outgoing_calls_by_day.x_axis}>
                      <Label value="Day Of Call" offset={0} position="bottom" />
                    </XAxis>
                     <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
@@ -880,6 +894,47 @@ class AnalyseCase extends Component {
                 </Paper>
               </Grid>
               <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.calls_by_ctype.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                </Paper>
+             </Grid>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.outgoing_calls_by_day.title}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
+                  <BarChart width={600} height={300} data={this.state.outgoing_calls_by_day.analysis_data}
+                         margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey={this.state.outgoing_calls_by_day.x_axis}>
+                     <Label value="Day Of Call" offset={0} position="bottom" />
+                   </XAxis>
+                    <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
+                    <Tooltip/>
+                    <Legend />
+                     <Bar dataKey="call_count" fill="#82ca9d" minPointSize={10} name='Call count'/>
+                   </BarChart>
+                </Paper>
+              </Grid>
+              <Grid item xs={6}>
+                <Paper className={classes.paper}>
+                  <div>
+                    <div className={classes.caseGrid}>
+                      {this.state.calls_by_ctype.title}
+                      <hr className={classes.hr}/>
+                    </div>
+                  </div>
+                </Paper>
+             </Grid>
+            <Grid item xs={6}>
               <Paper className={classes.paper}>
                 <div>
                   <div className={classes.caseGrid}>
