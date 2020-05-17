@@ -30,6 +30,9 @@ import {
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
+import FormControl from '@material-ui/core/FormControl';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
 
 import axios from 'axios';
 
@@ -153,6 +156,12 @@ const styles = theme => ({
     display: 'flex',
     height: 224,
   },
+  verticalTabConTimeLine: {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+    height: 400,
+  },
   tabs: {
     borderRight: `1px solid ${theme.palette.divider}`,
     overflow: "unset"
@@ -170,14 +179,50 @@ const styles = theme => ({
     textAlign: "right"
   },
   tabPanelVerticalDiv: {
-    width: "-webkit-fill-available"
+    width: "-webkit-fill-available",
+    overflowY: "scroll"
   },
   noResult: {
     textAlign: "center",
     fontSize: "20px",
     padding: "15%"
+  },
+  minDev: {
+    float: "right",
+    padding: "15px"
+  },
+  inbox: {
+    backgroundColor: "antiquewhite",
+    margin: "10px",
+    width: "350px",
+    float: "left",
+    padding: "8px",
+    borderRadius: "8px"
+  },
+  sent: {
+    backgroundColor: "antiquewhite",
+    margin: "10px",
+    width: "350px",
+    float: "right",
+    padding: "8px",
+    borderRadius: "8px"
+  },
+  incoming: {
+    backgroundColor: "antiquewhite",
+    margin: "10px",
+    padding: "8px",
+    borderRadius: "8px",
+    width: "100%",
+    display: "flow-root"
+  },
+  convDate: {
+    textAlign: "right",
+    fontSize: "small"
+  },
+  convLocation: {
+    textAlign: "right",
+    fontSize: "small"
   }
-
 })
 
 function TabPanel(props) {
@@ -311,9 +356,21 @@ class AnalyseCase extends Component {
         title: null,
         analysis_data: []
       },
+      i_calls_break_down: {
+        title: null,
+        analysis_data: []
+      },
       tabValue: 0,
       user_received_sms: [],
-      user_sent_sms: []
+      user_sent_sms: [],
+      user_incoming_call: [],
+      minute: 0,
+      user_conversation_timeline: {
+        title: null,
+        analysis_data: []
+      },
+      conv_timeline: [],
+      conv_type: null
     }
   }
 
@@ -340,6 +397,7 @@ class AnalyseCase extends Component {
             var sms_received_by_day = {...this.state.sms_received_by_day}
             var sms_by_type_date = {...this.state.sms_by_type_date}
             var location_case = {...this.state.location_case}
+            var user_conversation_timeline = {...this.state.user_conversation_timeline}
             var dashboard_case = {...this.state.dashboard}
 
             outgoing_calls_by_day.analysis_data = cases['outgoing_calls_by_day']['analysis_data']
@@ -379,6 +437,9 @@ class AnalyseCase extends Component {
             dashboard_case.call = cases['dashboard']['call']
             dashboard_case.location = cases['dashboard']['location']
 
+            user_conversation_timeline.analysis_data = cases['conversation_timeline']['analysis_data']
+            user_conversation_timeline.title = cases['conversation_timeline']['title']
+
             this.setState(
               {
                   outgoing_calls_by_day: outgoing_calls_by_day,
@@ -388,7 +449,8 @@ class AnalyseCase extends Component {
                   sms_received_by_day: sms_received_by_day,
                   sms_by_type_date: sms_by_type_date,
                   location_case: location_case,
-                  dashboard_case: dashboard_case
+                  dashboard_case: dashboard_case,
+                  user_conversation_timeline: user_conversation_timeline
               })
       })
   }
@@ -474,6 +536,30 @@ class AnalyseCase extends Component {
                 s_sms_break_down: s_sms_break_down
               })
             console.log(s_sms_break_down)
+        })
+  }
+
+  getIncomingCall = (props) => {
+    axios.get(
+        `http://127.0.0.1:8000/v1/case/cases/get_incoming_calls/`, {
+          params: {
+              caseId: this.props.location.state.id,
+              dateCalled: props._date_called,
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+            const cases = response.data;
+            var i_calls_break_down = {...this.state.i_calls_break_down}
+
+            i_calls_break_down.analysis_data = cases['incoming_calls']['analysis_data']
+            i_calls_break_down.title = cases['incoming_calls']['title']
+            this.setState(
+              {
+                i_calls_break_down: i_calls_break_down
+              })
+            console.log(i_calls_break_down)
         })
   }
 
@@ -616,6 +702,55 @@ class AnalyseCase extends Component {
         )
       )
 
+      const TabWrapperIncomingCall = props => (
+        this.state.i_calls_break_down.analysis_data.map((call, index) =>
+          <Tab
+            label={call['user']}
+            key={index}
+            onChange= {() =>
+              this.setState({user_incoming_call: call['call']})
+            }
+            {...a11yPropsVertical(index)} />
+        )
+      )
+
+      const TabPanelVerticalWrapperIncomingCall = props => (
+            <TabPanelVertical
+              key={this.state.tabValue}
+              className={classes.tabPanelVerticalDiv}
+              value={this.state.tabValue} index={this.state.tabValue}>
+
+              {this.state.user_incoming_call.length == 0 ?
+                  <div className={classes.noResult}>
+                    Click conversation bar for breakdown
+                    </div>: <span></span>
+              }
+
+              {this.state.user_incoming_call.map((call, index) =>
+                  <div
+                    key={btoa(Math.random()).substring(0,12)}
+                    className={classes.smsDivWrapper}>
+                    <div
+                      key={btoa(Math.random()).substring(0,12)}
+                      className={classes.smsDiv}>
+                      <div key={btoa(Math.random()).substring(0,12)}>
+                        <span key={btoa(Math.random()).substring(0,12)}>Country Code: </span>
+                        <span key={btoa(Math.random()).substring(0,12)}>{call['country_code']}</span>
+                      </div>
+                      <div key={btoa(Math.random()).substring(0,12)}>
+                        <span key={btoa(Math.random()).substring(0,12)}>Duration: </span>
+                        <span key={btoa(Math.random()).substring(0,12)}>{call['cduration']}</span>
+                      </div>
+                      <div key={btoa(Math.random()).substring(0,12)}>
+                      <span key={btoa(Math.random()).substring(0,12)}>Date:    </span>
+                      <span key={btoa(Math.random()).substring(0,12)}>{call['date_called']}</span>
+                      </div>
+                    </div>
+                  </div>
+              )}
+            </TabPanelVertical>
+      )
+
       const TabWrapperSent = props => (
         this.state.s_sms_break_down.analysis_data.map((sms, index) =>
           <Tab
@@ -627,6 +762,20 @@ class AnalyseCase extends Component {
             {...a11yPropsVertical(index)} />
         )
       )
+
+
+      const TabWrapperConvTimeLine = props => (
+          this.state.user_conversation_timeline.analysis_data.map((conv, index) =>
+          <Tab
+            label={conv['user']}
+            key={index}
+            onChange= {() =>
+              this.setState({conv_timeline: conv['conv']})
+            }
+            {...a11yPropsVertical(index)} />
+        )
+      )
+
       const TabPanelVerticalWrapper = props => (
             <TabPanelVertical
               key={this.state.tabValue}
@@ -640,11 +789,17 @@ class AnalyseCase extends Component {
               }
 
               {this.state.user_received_sms.map((sms, index) =>
-                  <div className={classes.smsDivWrapper}>
-                    <div className={classes.smsDiv}>
+                  <div
+                    key={btoa(Math.random()).substring(0,12)}
+                    className={classes.smsDivWrapper}>
+                    <div
+                      key={btoa(Math.random()).substring(0,12)}
+                      className={classes.smsDiv}>
                       {sms['body']}
                     </div>
-                    <div className={classes.drDiv}>{sms['date_received']}</div>
+                    <div
+                      key={btoa(Math.random()).substring(0,12)}
+                      className={classes.drDiv}>{sms['date_received']}</div>
                   </div>
               )}
             </TabPanelVertical>
@@ -661,14 +816,60 @@ class AnalyseCase extends Component {
                 </div>: <span></span>
           }
           {this.state.user_sent_sms.map((sms, index) =>
-              <div className={classes.smsDivWrapper}>
-                <div className={classes.smsDiv}>
+              <div
+                key={btoa(Math.random()).substring(0,12)}
+                className={classes.smsDivWrapper}>
+                <div
+                  key={btoa(Math.random()).substring(0,12)}
+                    className={classes.smsDiv}>
                   {sms['body']}
                 </div>
-                <div className={classes.drDiv}>{sms['date_sent']}</div>
+                <div
+                  key={btoa(Math.random()).substring(0,12)}
+                  className={classes.drDiv}>{sms['date_sent']}</div>
               </div>
           )}
           </TabPanelVertical>
+      )
+
+      const SentDiv = props => (
+        <div>
+          <MessageIcon fontSize="large" />
+        </div>
+      )
+
+      const TabPanelVerticalWrapperConvTimeLine = props => (
+            <TabPanelVertical
+              key={'key_' + this.state.tabValue}
+              className={classes.tabPanelVerticalDiv}
+              value={this.state.tabValue} index={this.state.tabValue}>
+
+              {this.state.conv_timeline.length == 0 ?
+                  <div className={classes.noResult}>
+                    Click conversation contact for more Information
+                    </div>: <span></span>
+              }
+              {this.state.conv_timeline.map((conv, index) =>
+                <div key={btoa(Math.random()).substring(0,12)}>
+                  <div
+                    key={btoa(Math.random()).substring(0,12)}
+                    className={
+                      conv['type'] == 'sent'? classes.sent: conv['type'] == 'inbox'? classes.inbox : classes.incoming
+                    }>
+                    <div key={btoa(Math.random()).substring(0,12)}>
+                      {conv['body']}
+                    </div>
+                    <br/>
+                    <div key={btoa(Math.random()).substring(0,12)} className={classes.convLocation}>{conv['_location']}</div>
+                    <div  key={btoa(Math.random()).substring(0,12)} className={classes.convDate}>
+                    {conv['date']}
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+            </TabPanelVertical>
       )
 
 
@@ -737,12 +938,42 @@ class AnalyseCase extends Component {
         </div>
         <AppBar position="static" className={classes.appBar}>
           <Tabs value={value} onChange={this.handleChange} aria-label="simple tabs example">
-            <Tab label="Messages" {...this.a11yProps(0)} />
-            <Tab label="Calls" {...this.a11yProps(1)} />
-            <Tab label="Location" {...this.a11yProps(2)} />
+            <Tab label="Conversation TimeLine" {...this.a11yProps(0)} />
+            <Tab label="Messages" {...this.a11yProps(1)} />
+            <Tab label="Calls" {...this.a11yProps(2)} />
+            <Tab label="Location" {...this.a11yProps(3)} />
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
+          <div className={classes.root}>
+            <Grid container spacing={3}>
+              <Grid item xs={8}>
+                <Paper className={classes.paper}>
+                 <div>
+                   <div className={classes.caseGrid}>
+                     {this.state.r_sms_break_down.title || 'Conversation TimeLine'}
+                     <hr className={classes.hr}/>
+                   </div>
+                 </div>
+                <div className={classes.verticalTabConTimeLine}>
+                   <Tabs
+                     orientation="vertical"
+                     variant="scrollable"
+                     value={this.state.tabValue}
+                     onChange={this.tabHandleChange}
+                     aria-label="Vertical tabs example"
+                     className={classes.tabs}
+                   >
+                    <TabWrapperConvTimeLine/>
+                    </Tabs>
+                    <TabPanelVerticalWrapperConvTimeLine/>
+                  </div>
+                </Paper>
+              </Grid>
+            </Grid>
+          </div>
+        </TabPanel>
+        <TabPanel value={value} index={1}>
           <div className={classes.root}>
             <Grid container spacing={3}>
               <Grid item xs={6}>
@@ -869,7 +1100,7 @@ class AnalyseCase extends Component {
             </Grid>
           </div>
         </TabPanel>
-        <TabPanel value={value} index={1}>
+        <TabPanel value={value} index={2}>
           <div className={classes.root}>
             <Grid container spacing={3}>
               <Grid item xs={6}>
@@ -889,7 +1120,12 @@ class AnalyseCase extends Component {
                     <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
                     <Tooltip/>
                     <Legend />
-                     <Bar dataKey="call_count" fill="#82ca9d" minPointSize={10} name='Call count'/>
+                     <Bar
+                      dataKey="call_count"
+                      fill="#82ca9d"
+                      minPointSize={10}
+                      name='Call count'
+                      onClick={this.getIncomingCall}/>
                    </BarChart>
                 </Paper>
               </Grid>
@@ -901,6 +1137,19 @@ class AnalyseCase extends Component {
                       <hr className={classes.hr}/>
                     </div>
                   </div>
+                  <div className={classes.verticalTab}>
+                     <Tabs
+                       orientation="vertical"
+                       variant="scrollable"
+                       value={this.state.tabValue}
+                       onChange={this.tabHandleChange}
+                       aria-label="Vertical tabs example"
+                       className={classes.tabs}
+                     >
+                      <TabWrapperIncomingCall/>
+                      </Tabs>
+                      <TabPanelVerticalWrapperIncomingCall/>
+                    </div>
                 </Paper>
              </Grid>
               <Grid item xs={6}>
@@ -920,7 +1169,12 @@ class AnalyseCase extends Component {
                     <YAxis label={{ value: 'No. Of Calls', angle: -90, position: 'insideBottomLeft', textAnchor: 'middle' }}/>
                     <Tooltip/>
                     <Legend />
-                     <Bar dataKey="call_count" fill="#82ca9d" minPointSize={10} name='Call count'/>
+                     <Bar
+                      dataKey="call_count"
+                      fill="#82ca9d"
+                      minPointSize={10}
+                      name='Call count'
+                      />
                    </BarChart>
                 </Paper>
               </Grid>
@@ -959,7 +1213,7 @@ class AnalyseCase extends Component {
             </Grid>
           </div>
         </TabPanel>
-        <TabPanel value={value} index={2}>
+        <TabPanel value={value} index={3}>
           <div className={classes.root}>
             <Grid container spacing={3}>
               <Grid item xs={8}>
@@ -1001,6 +1255,16 @@ class AnalyseCase extends Component {
                        }}/>
                      </div>
                    </MuiPickersUtilsProvider>
+                   <div className={classes.minDev}>
+                   <FormControl>
+                       <InputLabel htmlFor="minutes">Deviation in Minutes</InputLabel>
+                       <Input id="minutes"
+                        value={this.minute}
+                        type="number"
+                        defaultValue='0'
+                        onChange={this.handleMinuteChange} />
+                     </FormControl>
+                   </div>
                  </div>
                  <div className={classes.maps}>
                  <Map

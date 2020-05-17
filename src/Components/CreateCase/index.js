@@ -61,7 +61,7 @@ class CreateCase extends Component {
                       <AssessmentIcon fontSize="small" />
                       <h2 className={classes.header2}> All Cases</h2>
                     </div>
-                    <h4 className={classes.header4}> 283,773 </h4>
+                    <h4 className={classes.header4}> 5</h4>
                   </Paper>
                 </Grid>
               </Grid>
