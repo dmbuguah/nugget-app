@@ -107,10 +107,6 @@ class ListCases extends Component {
       })
    }
 
-   caseDitail() {
-
-   }
-
   render() {
       const { navigate, caseId } = this.state
       if (navigate) {

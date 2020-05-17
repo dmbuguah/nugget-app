@@ -8,6 +8,15 @@ import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import { Redirect, withRouter } from 'react-router-dom'
+import { compose } from 'recompose'
 import axios from 'axios'
 
 const styles = theme => ({
@@ -28,6 +37,10 @@ const styles = theme => ({
   button: {
     float: 'right',
     marginRight: 20
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
   }
 });
 
@@ -50,11 +63,14 @@ class CaseTargetInfor extends Component {
       target_path: '',
       itarget_type: [],
       title: '',
-      description: ''
+      description: '',
+      open: false,
+      openFeedback: false
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.analyseCase = this.analyseCase.bind(this);
 
     this.target_types = [
       'Calls',
@@ -69,11 +85,25 @@ class CaseTargetInfor extends Component {
     let nam = event.target.name;
     let val = event.target.value;
     this.setState({[nam]: val});
-    console.log(nam)
-    console.log(val)
+  }
+
+  handleCloseFeedBack = (props) => {
+    this.setState({openFeedback: false});
+  }
+
+  analyseCase = (props) => {
+    console.log('callled-----')
+    return <Redirect
+      push
+      to={{
+           pathname: "/list-cases"
+         }}
+     />
   }
 
   handleSubmit = (event) =>{
+    this.setState({open: true})
+    let that = this
     const response = axios.post(
         'http://127.0.0.1:8000/v1/case/cases/create_case/', {
           'title': this.state.title,
@@ -87,8 +117,15 @@ class CaseTargetInfor extends Component {
           headers: {
             'Content-Type': 'application/json'
           }
+        }).then(function (response) {
+            console.log(response)
+            that.setState(
+              {
+                  open: false,
+                  openFeedback: true
+              }
+          )
         })
-    console.log(response)
     event.preventDefault();
   }
 
@@ -151,11 +188,41 @@ class CaseTargetInfor extends Component {
             className={classes.button}
             size="medium"
             variant="outlined">
-            Submit
+            Create Case
           </Button>
+          <div>
+            <Backdrop
+              className={classes.backdrop} open={this.state.open}>
+              <CircularProgress color="inherit" />
+            </Backdrop>
+          </div>
+          <div>
+            <Dialog
+              open={this.state.openFeedback}
+              onClose={this.handleCloseFeedBack}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{"Case created successfully"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  For analysis, visit the Case detail view.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() =>
+                    this.props.history.push('/list-cases')
+                  } color="primary" autoFocus>
+                  Analyse
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
       </form>
     </div>
     );
   }
 }
-export default withStyles(styles) (CaseTargetInfor)
+export default compose (
+    withRouter,
+    withStyles(styles)) (CaseTargetInfor)
