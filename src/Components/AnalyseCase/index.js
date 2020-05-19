@@ -33,6 +33,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import FormControl from '@material-ui/core/FormControl';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import axios from 'axios';
 
@@ -693,7 +694,7 @@ class AnalyseCase extends Component {
       const TabWrapper = props => (
         this.state.r_sms_break_down.analysis_data.map((sms, index) =>
           <Tab
-            label={sms['user']}
+            label={<><div><AccountCircleIcon style={{verticalAlign: 'middle'}}/> {sms['user']}</div></>}
             key={index}
             onChange= {() =>
               this.setState({user_received_sms: sms['sms']})
@@ -705,7 +706,7 @@ class AnalyseCase extends Component {
       const TabWrapperIncomingCall = props => (
         this.state.i_calls_break_down.analysis_data.map((call, index) =>
           <Tab
-            label={call['user']}
+            label={<><div><AccountCircleIcon style={{verticalAlign: 'middle'}}/> {call['user']}</div></>}
             key={index}
             onChange= {() =>
               this.setState({user_incoming_call: call['call']})
@@ -754,7 +755,7 @@ class AnalyseCase extends Component {
       const TabWrapperSent = props => (
         this.state.s_sms_break_down.analysis_data.map((sms, index) =>
           <Tab
-            label={sms['user']}
+            label={<><div><AccountCircleIcon style={{verticalAlign: 'middle'}}/> {sms['user']}</div></>}
             key={index}
             onChange= {() =>
               this.setState({user_sent_sms: sms['sms']})
@@ -767,7 +768,7 @@ class AnalyseCase extends Component {
       const TabWrapperConvTimeLine = props => (
           this.state.user_conversation_timeline.analysis_data.map((conv, index) =>
           <Tab
-            label={conv['user']}
+            label={<><div><AccountCircleIcon style={{verticalAlign: 'middle'}}/> {conv['user']}</div></>}
             key={index}
             onChange= {() =>
               this.setState({conv_timeline: conv['conv']})
