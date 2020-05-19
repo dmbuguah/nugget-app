@@ -79,6 +79,7 @@ class CaseTargetInfor extends Component {
     ];
     this.state.title = localStorage.getItem('title')
     this.state.description = localStorage.getItem('description')
+    this.fileInput = React.createRef();
   }
 
   handleChange = (event) =>{
@@ -103,6 +104,7 @@ class CaseTargetInfor extends Component {
 
   handleSubmit = (event) =>{
     this.setState({open: true})
+    console.log(this.target_path)
     let that = this
     const response = axios.post(
         'http://127.0.0.1:8000/v1/case/cases/create_case/', {
@@ -148,13 +150,13 @@ class CaseTargetInfor extends Component {
           </FormControl>
           <br/>
           <FormControl className={classes.formControl}>
-            <TextField
-              id="standard-basic"
-              fullWidth
-              label="Target Path"
-              name="target_path"
-              onChange={this.handleChange}
-              defaultValue={this.state.target_path}/>
+          <TextField
+            id="standard-basic"
+            fullWidth
+            label="Target Path"
+            name="target_path"
+            onChange={this.handleChange}
+            defaultValue={this.state.target_path}/>
           </FormControl>
           <br/>
           <FormControl className={classes.formControl}>
